@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'register_screen.dart';
 
 class IntroScreen extends StatelessWidget {
   @override
@@ -26,7 +27,12 @@ class IntroScreen extends StatelessWidget {
                     child: Text('Prijava', style: TextStyle(fontSize: 20)),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => RegisterScreen()),
+                      );
+                    },
                     child: Text('Registracija', style: TextStyle(fontSize: 20)),
                   ),
                 ],
