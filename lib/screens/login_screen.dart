@@ -10,17 +10,11 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Username'),
-            ),
-            TextFormField(
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
-            ),
+            TextFormField(decoration: InputDecoration(labelText: 'Username')),
+            TextFormField(obscureText: true, decoration: InputDecoration(labelText: 'Password')),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               child: Text('Login'),
             ),
           ],
