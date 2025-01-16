@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -22,8 +23,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final password = _passwordController.text;
 
       try {
+        final apiUrl = dotenv.env['API_URL'];
+
         final response = await http.post(
-          Uri.parse('http://localhost:8000/api/register'),
+          Uri.parse('$apiUrl/register'),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             'name': name,
@@ -33,10 +36,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }),
         );
 
-        if (response.statusCode == 200) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
           final responseData = json.decode(response.body);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Registracija uspešna! Dobrodošli, ${responseData['name']}')),
+            SnackBar(content: Text('Registracija uspјešna! Dobrodošli, ${responseData['data']['user']['name']}')),
           );
           Navigator.push(
             context,

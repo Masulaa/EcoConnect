@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,8 +20,10 @@ class _LoginScreenState extends State<LoginScreen> {
       final password = _passwordController.text;
 
       try {
+        final apiUrl = dotenv.env['API_URL'];
+
         final response = await http.post(
-          Uri.parse('http://localhost:8000/api/login'),
+          Uri.parse('$apiUrl/login'),
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             'email': email,
