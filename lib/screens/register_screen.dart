@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'login_screen.dart';
+import '../widgets/background_image.dart';
+import '../widgets/custom_button.dart';
+import '../widgets/intro_text.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -63,81 +66,93 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Registracija')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Ime'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ime je obavezno';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(labelText: 'E-mail adresa'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'E-mail je obavezan';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return 'Unesite validan e-mail';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Lozinka'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Lozinka je obavezna';
-                  }
-                  if (value.length < 6) {
-                    return 'Lozinka mora imati najmanje 6 karaktera';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Potvrdite lozinku'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Potvrda lozinke je obavezna';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'Lozinke se ne poklapaju';
-                  }
-                  return null;
-                },
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
-                },
-                child: Text('Već imate nalog? Prijavite se', style: TextStyle(fontSize: 16)),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _register,
-                child: Text('Registrujte se'),
-              ),
-            ],
+      body: Stack(
+        children: [
+          const BackgroundImage(),
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 80.0),
+              child: const IntroText(),
+            ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(labelText: 'Ime'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Ime je obavezno';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(labelText: 'E-mail adresa'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'E-mail je obavezan';
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Unesite validan e-mail';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'Lozinka'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Lozinka je obavezna';
+                      }
+                      if (value.length < 6) {
+                        return 'Lozinka mora imati najmanje 6 karaktera';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(labelText: 'Potvrdite lozinku'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Potvrda lozinke je obavezna';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Lozinke se ne poklapaju';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
+                    child: Text('Već imate nalog? Prijavite se', style: TextStyle(fontSize: 16)),
+                  ),
+                  const SizedBox(height: 20),
+                  CustomButton(
+                    text: 'Registrujte se',
+                    onPressed: _register,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
