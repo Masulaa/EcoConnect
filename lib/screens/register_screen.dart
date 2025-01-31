@@ -23,7 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final password = _passwordController.text;
 
       try {
-        final apiUrl = dotenv.env['API_URL'];
+        final apiUrl = dotenv.env['API_URL'] ?? 'https://ecoconnect.cortexakademija.com/api';
 
         final response = await http.post(
           Uri.parse('$apiUrl/register'),
