@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/background_image.dart';
-import '../widgets/intro_text.dart';
 import 'register_screen.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -37,8 +38,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.statusCode == 200) {
           final responseData = json.decode(response.body);
+          final token = responseData['data']['token'];
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Prijava je uspješna! Dobrodošli, ${responseData['data']['user']['name']}')),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
           );
         } else {
           final responseData = json.decode(response.body);
@@ -64,8 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
-              padding: const EdgeInsets.only(top: 80.0),
-              child: const IntroText(),
+              padding: const EdgeInsets.only(top: 10.0),
             ),
           ),
           Padding(

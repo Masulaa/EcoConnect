@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 80.0),
-              child: const IntroText(),
+              //child: const IntroText(),
             ),
           ),
           Padding(
