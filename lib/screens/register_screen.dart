@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'login_screen.dart';
 import '../widgets/background_image.dart';
 import '../widgets/custom_button.dart';
+import '../widgets/custom_text_field.dart';
 import '../widgets/intro_text.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -69,86 +70,94 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Stack(
         children: [
           const BackgroundImage(),
-          Align(
-            alignment: Alignment.topCenter,
+          Center(
             child: Padding(
-              padding: const EdgeInsets.only(top: 80.0),
-              //child: const IntroText(),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(labelText: 'Ime'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Ime je obavezno';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(labelText: 'E-mail adresa'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'E-mail je obavezan';
-                      }
-                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        return 'Unesite validan e-mail';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Lozinka'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Lozinka je obavezna';
-                      }
-                      if (value.length < 6) {
-                        return 'Lozinka mora imati najmanje 6 karaktera';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Potvrdite lozinku'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Potvrda lozinke je obavezna';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Lozinke se ne poklapaju';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
-                      );
-                    },
-                    child: Text('Već imate nalog? Prijavite se', style: TextStyle(fontSize: 16)),
-                  ),
-                  const SizedBox(height: 20),
-                  CustomButton(
-                    text: 'Registrujte se',
-                    onPressed: _register,
-                  ),
-                ],
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    CustomTextField(
+                      controller: _nameController,
+                      label: 'Ime',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Ime je obavezno';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    CustomTextField(
+                      controller: _emailController,
+                      label: 'E-mail adresa',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'E-mail je obavezan';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Unesite validan e-mail';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    CustomTextField(
+                      controller: _passwordController,
+                      label: 'Lozinka',
+                      isPassword: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Lozinka je obavezna';
+                        }
+                        if (value.length < 6) {
+                          return 'Lozinka mora imati najmanje 6 karaktera';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    CustomTextField(
+                      controller: _confirmPasswordController,
+                      label: 'Potvrdite lozinku',
+                      isPassword: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Potvrda lozinke je obavezna';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Lozinke se ne poklapaju';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    CustomButton(
+                      text: 'Registrujte se',
+                      onPressed: _register,
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
+                        );
+                      },
+                      child: const Text('Već imate nalog? Prijavite se', style: 
+                        TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: Color(0xFF1B5E20),
+                          height: 24 / 16,
+                        )
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

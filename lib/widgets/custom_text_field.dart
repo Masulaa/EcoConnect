@@ -16,12 +16,40 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(labelText: label),
-      obscureText: isPassword,
-      keyboardType: isPassword ? TextInputType.text : TextInputType.emailAddress,
-      validator: validator,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Container(
+        width: 245,
+        height: 54,
+        decoration: BoxDecoration(
+          color: const Color(0xCC1B5E20),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: TextFormField(
+          controller: controller,
+          obscureText: isPassword,
+          keyboardType: isPassword ? TextInputType.text : TextInputType.emailAddress,
+          validator: validator,
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+          ),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.all(16.0),
+          ),
+        ),
+      ),
     );
   }
 }
+
