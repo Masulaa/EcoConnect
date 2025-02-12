@@ -9,6 +9,7 @@ import '../widgets/background_image.dart';
 import '../widgets/intro_text.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
+import '../widgets/back_button_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -93,11 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: 'E-mail adresa',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                          return 'Unesite e-mail adresu';
-                        }
+                            return 'Unesite e-mail adresu';
+                          }
                           if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Unesite validnu e-mail adresu';
-                        }
+                            return 'Unesite validnu e-mail adresu';
+                          }
                           return null;
                         },
                       ),
@@ -108,11 +109,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         isPassword: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                          return 'Unesite lozinku';
-                        }
+                            return 'Unesite lozinku';
+                          }
                           if (value.length < 6) {
-                          return 'Lozinka mora imati najmanje 6 karaktera';
-                        }
+                            return 'Lozinka mora imati najmanje 6 karaktera';
+                          }
                           return null;
                         },
                       ),
@@ -164,17 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-
-          Positioned(
-            bottom: 16,
-            left: MediaQuery.of(context).size.width * 0.5 - 19,
-            child: IconButton(
-              icon: Icon(Icons.arrow_back, size: 38, color: Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
+          BackButtonWidget(),
         ],
       ),
     );

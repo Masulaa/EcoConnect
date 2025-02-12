@@ -7,6 +7,7 @@ import '../widgets/background_image.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/intro_text.dart';
+import '../widgets/back_button_widget.dart'; 
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -76,9 +77,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
+                    const IntroText(),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                     CustomTextField(
                       controller: _nameController,
                       label: 'Ime',
@@ -89,7 +91,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 0),
                     CustomTextField(
                       controller: _emailController,
                       label: 'E-mail adresa',
@@ -103,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 0),
                     CustomTextField(
                       controller: _passwordController,
                       label: 'Lozinka',
@@ -118,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 0),
                     CustomTextField(
                       controller: _confirmPasswordController,
                       label: 'Potvrdite lozinku',
@@ -133,12 +135,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 0),
                     CustomButton(
                       text: 'Registrujte se',
                       onPressed: _register,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 0),
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -161,6 +163,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
+          BackButtonWidget(),
         ],
       ),
     );
