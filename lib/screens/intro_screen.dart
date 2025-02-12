@@ -29,6 +29,9 @@ class IntroScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const IntroText(),
+
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+
                         CustomButton(
                           text: 'Registracija',
                           onPressed: () {

@@ -37,7 +37,6 @@ class IntroText extends StatelessWidget {
             color: const Color(0xFF1B5E20),
           ),
         ),
-        SizedBox(height: height * 0.1),
       ],
     );
   }

@@ -66,7 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Registracija')),
+      //appBar: AppBar(title: Text('Registracija')),
       body: Stack(
         children: [
           const BackgroundImage(),

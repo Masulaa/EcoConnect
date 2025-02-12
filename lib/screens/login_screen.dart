@@ -69,31 +69,35 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Prijava')),
+      //appBar: AppBar(title: const Text('Prijava')),
       body: Stack(
         children: [
           const BackgroundImage(),
-          Center(
+
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.0,
+            left: 0,
+            right: 0,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       const IntroText(),
-
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                       CustomTextField(
                         controller: _emailController,
                         label: 'E-mail adresa',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Unesite e-mail adresu';
-                          }
+                          return 'Unesite e-mail adresu';
+                        }
                           if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Unesite validnu e-mail adresu';
-                          }
+                          return 'Unesite validnu e-mail adresu';
+                        }
                           return null;
                         },
                       ),
@@ -104,11 +108,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         isPassword: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Unesite lozinku';
-                          }
+                          return 'Unesite lozinku';
+                        }
                           if (value.length < 6) {
-                            return 'Lozinka mora imati najmanje 6 karaktera';
-                          }
+                          return 'Lozinka mora imati najmanje 6 karaktera';
+                        }
                           return null;
                         },
                       ),
@@ -143,7 +147,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             MaterialPageRoute(builder: (context) => RegisterScreen()),
                           );
                         },
-                        child: const Text('Nemate nalog? Registrujte se', style: TextStyle(
+                        child: const Text(
+                          'Nemate nalog? Registrujte se',
+                          style: TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
@@ -158,9 +164,19 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
+
+          Positioned(
+            bottom: 16,
+            left: MediaQuery.of(context).size.width * 0.5 - 19,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, size: 38, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 }
-
