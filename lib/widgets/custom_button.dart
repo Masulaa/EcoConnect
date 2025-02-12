@@ -25,7 +25,7 @@ class CustomButton extends StatelessWidget {
         style: TextStyle(
           fontFamily: 'Poppins',
           fontWeight: FontWeight.bold,
-          fontSize: width * 0.05,
+          fontSize: 20,
           color: Colors.white,
         ),
       ),

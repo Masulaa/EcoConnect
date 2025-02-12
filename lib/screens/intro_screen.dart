@@ -23,30 +23,33 @@ class IntroScreen extends StatelessWidget {
               children: [
                 const BackgroundImage(),
                 Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const IntroText(),
-                      CustomButton(
-                        text: 'Registracija',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => RegisterScreen()),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      CustomButton(
-                        text: 'Prijava',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginScreen()),
-                          );
-                        },
-                      ),
-                    ],
+                  child: Transform.translate(
+                    offset: Offset(0, -MediaQuery.of(context).size.height * 0.1),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const IntroText(),
+                        CustomButton(
+                          text: 'Registracija',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => RegisterScreen()),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        CustomButton(
+                          text: 'Prijava',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginScreen()),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

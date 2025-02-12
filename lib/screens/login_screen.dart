@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/background_image.dart';
+import '../widgets/intro_text.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
 
@@ -77,78 +78,82 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    CustomTextField(
-                      controller: _emailController,
-                      label: 'E-mail adresa',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Unesite e-mail adresu';
-                        }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Unesite validnu e-mail adresu';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    CustomTextField(
-                      controller: _passwordController,
-                      label: 'Lozinka',
-                      isPassword: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Unesite lozinku';
-                        }
-                        if (value.length < 6) {
-                          return 'Lozinka mora imati najmanje 6 karaktera';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    CustomButton(
-                      text: 'Prijavite se',
-                      onPressed: _login,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => RegisterScreen()),
-                        );
-                      },
-                      child: Text(
-                        'Zaboravili ste lozinku?',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: Color(0xFF1B5E20),
-                          height: 24 / 16,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const IntroText(),
+
+                      CustomTextField(
+                        controller: _emailController,
+                        label: 'E-mail adresa',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Unesite e-mail adresu';
+                          }
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            return 'Unesite validnu e-mail adresu';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      CustomTextField(
+                        controller: _passwordController,
+                        label: 'Lozinka',
+                        isPassword: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Unesite lozinku';
+                          }
+                          if (value.length < 6) {
+                            return 'Lozinka mora imati najmanje 6 karaktera';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      CustomButton(
+                        text: 'Prijavite se',
+                        onPressed: _login,
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => RegisterScreen()),
+                          );
+                        },
+                        child: Text(
+                          'Zaboravili ste lozinku?',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: Color(0xFF1B5E20),
+                            height: 24 / 16,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => RegisterScreen()),
-                        );
-                      },
-                      child: const Text('Nemate nalog? Registrujte se', style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: Color(0xFF1B5E20),
-                          height: 24 / 16,
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => RegisterScreen()),
+                          );
+                        },
+                        child: const Text('Nemate nalog? Registrujte se', style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: Color(0xFF1B5E20),
+                            height: 24 / 16,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -158,3 +163,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

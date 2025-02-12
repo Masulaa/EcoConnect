@@ -65,6 +65,7 @@ flutter:
   assets:
     - .env
     - assets/background.png
+    - assets/logo.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
