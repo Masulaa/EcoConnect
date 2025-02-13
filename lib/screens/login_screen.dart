@@ -21,51 +21,51 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      final email = _emailController.text;
-      final password = _passwordController.text;
+  // Future<void> _login() async {
+  //   if (_formKey.currentState!.validate()) {
+  //     final email = _emailController.text;
+  //     final password = _passwordController.text;
 
-      try {
-        final apiUrl = dotenv.env['API_URL'] ?? 'https://ecoconnect.cortexakademija.com/api';
+  //     try {
+  //       final apiUrl = dotenv.env['API_URL'] ?? 'https://ecoconnect.cortexakademija.com/api';
 
-        final response = await http.post(
-          Uri.parse('$apiUrl/login'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'email': email,
-            'password': password,
-          }),
-        );
+  //       final response = await http.post(
+  //         Uri.parse('$apiUrl/login'),
+  //         headers: {'Content-Type': 'application/json'},
+  //         body: json.encode({
+  //           'email': email,
+  //           'password': password,
+  //         }),
+  //       );
 
-        if (response.statusCode == 200) {
-          final responseData = json.decode(response.body);
-          final token = responseData['data']['token'];
+  //       if (response.statusCode == 200) {
+  //         final responseData = json.decode(response.body);
+  //         final token = responseData['data']['token'];
 
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('auth_token', token);
+  //         final prefs = await SharedPreferences.getInstance();
+  //         await prefs.setString('auth_token', token);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Prijava je uspješna! Dobrodošli, ${responseData['data']['user']['name']}')),
-          );
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Prijava je uspješna! Dobrodošli, ${responseData['data']['user']['name']}')),
+  //         );
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-          );
-        } else {
-          final responseData = json.decode(response.body);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Greška: ${responseData['message']}')),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Greška u povezivanju sa serverom.')),
-        );
-      }
-    }
-  }
+  //         Navigator.pushReplacement(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => HomeScreen()),
+  //         );
+  //       } else {
+  //         final responseData = json.decode(response.body);
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Greška: ${responseData['message']}')),
+  //         );
+  //       }
+  //     } catch (e) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Greška u povezivanju sa serverom.')),
+  //       );
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -120,14 +120,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 20),
                       CustomButton(
                         text: 'Prijavite se',
-                        onPressed: _login,
+                        onPressed: () {    
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => HomeScreen()),
+                            );
+                        },
+                        // onPressed: _login,
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => RegisterScreen()),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => RegisterScreen()),
+                          // );
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => HomeScreen()),
+                            );
                         },
                         child: Text(
                           'Zaboravili ste lozinku?',
@@ -146,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => RegisterScreen()),
-                          );
+                          );               
                         },
                         child: const Text(
                           'Nemate nalog? Registrujte se',
