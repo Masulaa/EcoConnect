@@ -75,9 +75,24 @@ class HomeScreen extends StatelessWidget {
     return BarChart(
       BarChartData(
         barGroups: [
-          BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 508, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
-          BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 591, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
-          BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 72, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
+          BarChartGroupData(x: 0, barRods: [
+            BarChartRodData(
+                toY: 508,
+                color: Color(0xCC1B5E20),
+                borderRadius: BorderRadius.zero)
+          ]),
+          BarChartGroupData(x: 1, barRods: [
+            BarChartRodData(
+                toY: 591,
+                color: Color(0xCC1B5E20),
+                borderRadius: BorderRadius.zero)
+          ]),
+          BarChartGroupData(x: 2, barRods: [
+            BarChartRodData(
+                toY: 72,
+                color: Color(0xCC1B5E20),
+                borderRadius: BorderRadius.zero)
+          ]),
         ],
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -88,11 +103,17 @@ class HomeScreen extends StatelessWidget {
               getTitlesWidget: (double value, TitleMeta meta) {
                 switch (value.toInt()) {
                   case 0:
-                    return Text('kW/H', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
+                    return Text('kW/H',
+                        style: TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.bold));
                   case 1:
-                    return Text('Сдавайся', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
+                    return Text('Сдавайся',
+                        style: TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.bold));
                   case 2:
-                    return Text('Хохол', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
+                    return Text('Хохол',
+                        style: TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.bold));
                 }
                 return Text('');
               },
@@ -113,8 +134,10 @@ class HomeScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildButton(context, 'Potrošnja vode', Icons.water_damage, WaterConsumptionScreen()),
-              _buildButton(context, 'Potrošnja struje', Icons.electrical_services, PowerConsumptionScreen()),
+              _buildButton(context, 'Potrošnja vode', Icons.water_damage,
+                  WaterConsumptionScreen()),
+              _buildButton(context, 'Potrošnja struje',
+                  Icons.electrical_services, PowerConsumptionScreen()),
             ],
           ),
           const SizedBox(height: 20),
@@ -130,7 +153,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(BuildContext context, String text, IconData icon, Widget destinationScreen) {
+  Widget _buildButton(BuildContext context, String text, IconData icon,
+      Widget destinationScreen) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -142,7 +166,14 @@ class HomeScreen extends StatelessWidget {
         width: 143,
         height: 115,
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFD3E0D4), // Prva boja: #D3E0D4
+              Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
