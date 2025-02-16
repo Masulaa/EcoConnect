@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../widgets/main_back_button_widget.dart';
+import 'dashboard_screens/water_consumption_screen.dart';  // New import
+import 'dashboard_screens/power_consumption_screen.dart';
+import 'dashboard_screens/advice_screen.dart';  // New import
+import 'dashboard_screens/goals_screen.dart';  // New import
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -30,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 40),
                     _buildChartBox(),
                     const SizedBox(height: 40),
-                    _buildButtonGrid(),
+                    _buildButtonGrid(context),
                   ],
                 ),
               ),
@@ -61,37 +65,9 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildLegend(),
           Expanded(child: _buildChart()),
         ],
       ),
-    );
-  }
-
-  Widget _buildLegend() {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 1,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Color.fromRGBO(27, 94, 32, 0.8),
-            ),
-          ),
-        ),
-        SizedBox(width: 10),
-        Text(
-          'Prikaz',
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 1,
-            color: Color(0xFF949494),
-          ),
-        ),
-      ],
     );
   }
 
@@ -99,12 +75,13 @@ class HomeScreen extends StatelessWidget {
     return BarChart(
       BarChartData(
         barGroups: [
-          BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 8, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
-          BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 6, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
-          BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 7, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
+          BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 508, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
+          BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 591, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
+          BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 72, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
         ],
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -128,7 +105,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildButtonGrid() {
+  Widget _buildButtonGrid(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -136,16 +113,16 @@ class HomeScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildButton('Potrosnja vode', Icons.home),
-              _buildButton('Potrosnja struje', Icons.power),
+              _buildButton(context, 'Potrošnja vode', Icons.water_damage, WaterConsumptionScreen()),
+              _buildButton(context, 'Potrošnja struje', Icons.electrical_services, PowerConsumptionScreen()),
             ],
           ),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildButton('Savjeti', Icons.lightbulb),
-              _buildButton('Ciljevi', Icons.flag),
+              _buildButton(context, 'Savjeti', Icons.lightbulb, AdviceScreen()),
+              _buildButton(context, 'Ciljevi', Icons.flag, GoalsScreen()),
             ],
           ),
         ],
@@ -153,36 +130,44 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(String text, IconData icon) {
-    return Container(
-      width: 143,
-      height: 115,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Color.fromRGBO(91, 71, 188, 0.3),
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Color(0xFF1B5E20), size: 40),
-          const SizedBox(height: 10),
-          Text(
-            text,
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1B5E20),
+  Widget _buildButton(BuildContext context, String text, IconData icon, Widget destinationScreen) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destinationScreen),
+        );
+      },
+      child: Container(
+        width: 143,
+        height: 115,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromRGBO(91, 71, 188, 0.3),
+              blurRadius: 20,
+              offset: Offset(0, 4),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Color(0xFF1B5E20), size: 40),
+            const SizedBox(height: 10),
+            Text(
+              text,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1B5E20),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
