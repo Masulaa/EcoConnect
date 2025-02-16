@@ -28,7 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final password = _passwordController.text;
 
       try {
-        final apiUrl = dotenv.env['API_URL'] ?? 'http://95.155.25.252/api';
+        final apiUrl = dotenv.env['API_URL'] ?? 'https://lukamasulovic.site/api';
 
         final response = await http.post(
           Uri.parse('$apiUrl/register'),

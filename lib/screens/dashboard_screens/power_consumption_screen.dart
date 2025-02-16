@@ -16,12 +16,12 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
   String lastInvoiceDate = 'Učitavanje...';
   String lastInvoiceAmount = '';
 
-  double averageCostPerKWh = 0.2;
+  double averageCostPerKWh = 0.89;
   double averageUsagePerHour = 0.5;
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
-        'http://95.155.25.252/epcg?pretplatniBroj=152577011&brojBrojila=18N4E5B2514906007'));
+        'https://lukamasulovic.site/epcg?pretplatniBroj=152577011&brojBrojila=18N4E5B2514906007'));
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
