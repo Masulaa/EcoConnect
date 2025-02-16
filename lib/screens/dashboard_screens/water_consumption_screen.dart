@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:fl_chart/fl_chart.dart';
 import 'dart:convert';
 import '../../widgets/main_back_button_widget.dart';
 
@@ -71,47 +70,34 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with logo and title
-                  Center(
-                    child: Column(
-                      children: [
-                        Image.asset('assets/logo.png', height: 60),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Potrošnja vode',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 40,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF1B5E20),
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+          Column(
+            children: [
+              const SizedBox(height: 40),
+              Center(
+                child: Column(
+                  children: [
+                    Image.asset('assets/logo.png', height: 60),
+                    const SizedBox(height: 1),
+                    const Text(
+                      'Potrošnja vode',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1B5E20),
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
-                  ),
-
-                  Container(
-                    height: 250,
-                    child: _buildChart(),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  _buildDataCard('Količina potrošnje vode:', waterConsumption),
-                  _buildDataCard('Količina otpadnih voda:', sewerageConsumption),
-                  _buildDataCard('Ukupno dugovanje:', totalDue),
-                  _buildDataCard('Posljednji račun:', lastInvoiceAmount),
-                ],
+                    const SizedBox(height: 40),
+                    //_buildDataCard('Ime korisnika:', consumerName),
+                    _buildDataCard('Količina potrošnje vode:', waterConsumption),
+                    _buildDataCard('Količina otpadnih voda:', sewerageConsumption),
+                    _buildDataCard('Ukupno dugovanje:', totalDue),
+                    _buildDataCard('Posljednji račun:', lastInvoiceAmount),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
           MainBackButtonWidget(size: 38, color: Colors.black),
         ],
@@ -119,64 +105,12 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
     );
   }
 
-  Widget _buildChart() {
-    double totalDueValue = double.parse(totalDue.replaceAll('€', '').trim());
-    double lastInvoiceValue = double.parse(lastInvoiceAmount.replaceAll('€', '').trim());
-    double previousMonthDebt = 50.0;
 
-    return BarChart(
-      BarChartData(
-        barGroups: [
-          BarChartGroupData(x: 0, barRods: [
-            BarChartRodData(
-                toY: totalDueValue,
-                color: Color(0xCC1B5E20),
-                borderRadius: BorderRadius.zero)
-          ]),
-          BarChartGroupData(x: 1, barRods: [
-            BarChartRodData(
-                toY: lastInvoiceValue,
-                color: Color(0xFF4CAF50),
-                borderRadius: BorderRadius.zero)
-          ]),
-          BarChartGroupData(x: 2, barRods: [
-            BarChartRodData(
-                toY: previousMonthDebt,
-                color: Color(0xFF03A9F4),
-                borderRadius: BorderRadius.zero)
-          ]),
-        ],
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, meta) {
-            return Text('${value.toInt()}€', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
-          })),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (double value, TitleMeta meta) {
-                switch (value.toInt()) {
-                  case 0:
-                    return Text('Ukupno', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
-                  case 1:
-                    return Text('Poslednji', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
-                  case 2:
-                    return Text('Prethodni', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
-                }
-                return Text('');
-              },
-            ),
-          ),
-        ),
-        gridData: FlGridData(show: true),
-        borderData: FlBorderData(show: false),
-      ),
-    );
-  }
+
 
   Widget _buildDataCard(String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Card(
         color: Colors.white,
         shadowColor: Colors.black.withOpacity(0.1),
