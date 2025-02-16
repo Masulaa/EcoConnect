@@ -1,38 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../widgets/back_button_widget.dart';
+import '../widgets/main_back_button_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: Stack(
         children: [
-          const SizedBox(height: 40),
-          Center(
-            child: Column(
-              children: [
-                Image.asset('assets/logo.png', height: 60),
-                const SizedBox(height: 1),
-                const Text(
-                  'Dashboard',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1B5E20),
-                    decoration: TextDecoration.underline,
-                  ),
+          Column(
+            children: [
+              const SizedBox(height: 40),
+              Center(
+                child: Column(
+                  children: [
+                    Image.asset('assets/logo.png', height: 60),
+                    const SizedBox(height: 1),
+                    const Text(
+                      'Dashboard',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1B5E20),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    _buildChartBox(),
+                    const SizedBox(height: 40),
+                    _buildButtonGrid(),
+                  ],
                 ),
-                const SizedBox(height: 40),
-                _buildChartBox(),
-                const SizedBox(height: 40),
-                _buildButtonGrid(),
-              ],
-            ),
+              ),
+            ],
           ),
-          BackButtonWidget(),
+          MainBackButtonWidget(size: 38, color: Colors.black),
         ],
       ),
     );
