@@ -40,7 +40,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          MainBackButtonWidget(size: 38, color: Colors.black),
+          //MainBackButtonWidget(size: 38, color: Colors.black),
         ],
       ),
     );
