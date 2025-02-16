@@ -22,7 +22,8 @@ class IntroText extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 40,
-            color: const Color(0xFF1B5E20),
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF1B5E20),
             decoration: TextDecoration.underline,
           ),
         ),
