@@ -21,7 +21,6 @@ class IntroText extends StatelessWidget {
           'EcoConnect',
           style: TextStyle(
             fontFamily: 'Poppins',
-            fontWeight: FontWeight.w900,
             fontSize: 40,
             color: const Color(0xFF1B5E20),
             decoration: TextDecoration.underline,

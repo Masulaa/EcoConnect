@@ -74,7 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           const BackgroundImage(),
-
           Positioned(
             top: MediaQuery.of(context).size.height * 0.0,
             left: 0,
@@ -88,7 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       const IntroText(),
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.05),
                       CustomTextField(
                         controller: _emailController,
                         label: 'E-mail adresa',
@@ -120,11 +120,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 20),
                       CustomButton(
                         text: 'Prijavite se',
-                        onPressed: () {    
+                        onPressed: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => HomeScreen()),
-                            );
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()),
+                          );
                         },
                         // onPressed: _login,
                       ),
@@ -134,10 +135,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           //   context,
                           //   MaterialPageRoute(builder: (context) => RegisterScreen()),
                           // );
-                              Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => HomeScreen()),
-                            );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()),
+                          );
                         },
                         child: Text(
                           'Zaboravili ste lozinku?',
@@ -155,8 +157,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => RegisterScreen()),
-                          );               
+                            MaterialPageRoute(
+                                builder: (context) => RegisterScreen()),
+                          );
                         },
                         child: const Text(
                           'Nemate nalog? Registrujte se',
