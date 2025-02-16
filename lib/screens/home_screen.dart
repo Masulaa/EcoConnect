@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../widgets/main_back_button_widget.dart';
-import 'dashboard_screens/water_consumption_screen.dart';  // New import
+import 'dashboard_screens/water_consumption_screen.dart';
 import 'dashboard_screens/power_consumption_screen.dart';
-import 'dashboard_screens/advice_screen.dart';  // New import
-import 'dashboard_screens/goals_screen.dart';  // New import
+import 'dashboard_screens/advice_screen.dart';
+import 'dashboard_screens/goals_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -172,4 +172,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
