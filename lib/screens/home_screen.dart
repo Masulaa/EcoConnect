@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../widgets/main_back_button_widget.dart';
 import 'dashboard_screens/water_consumption_screen.dart';
 import 'dashboard_screens/power_consumption_screen.dart';
@@ -7,6 +8,9 @@ import 'dashboard_screens/advice_screen.dart';
 import 'dashboard_screens/goals_screen.dart';
 
 class HomeScreen extends StatelessWidget {
+  final Uri googleMapsUri = Uri.parse(
+      "https://www.google.com/maps/search/eko+reciklazni+centri+crna+gora/");
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +36,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    _buildChartBox(),
+                    _buildSlidingContent(),
                     const SizedBox(height: 40),
                     _buildButtonGrid(context),
                   ],
@@ -46,10 +50,21 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChartBox() {
+  Widget _buildSlidingContent() {
     return Container(
       width: 297,
       height: 256,
+      child: PageView(
+        children: [
+          _buildChartBox(),
+          _buildGoogleMapsDummy(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChartBox() {
+    return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -103,15 +118,15 @@ class HomeScreen extends StatelessWidget {
               getTitlesWidget: (double value, TitleMeta meta) {
                 switch (value.toInt()) {
                   case 0:
-                    return Text('kW/H',
+                    return Text('kW/h',
                         style: TextStyle(
                             fontSize: 11, fontWeight: FontWeight.bold));
                   case 1:
-                    return Text('Сдавайся',
+                    return Text('Litara',
                         style: TextStyle(
                             fontSize: 11, fontWeight: FontWeight.bold));
                   case 2:
-                    return Text('Хохол',
+                    return Text('Reciklaža',
                         style: TextStyle(
                             fontSize: 11, fontWeight: FontWeight.bold));
                 }
@@ -122,6 +137,37 @@ class HomeScreen extends StatelessWidget {
         ),
         gridData: FlGridData(show: true),
         borderData: FlBorderData(show: false),
+      ),
+    );
+  }
+
+  Widget _buildGoogleMapsDummy() {
+    return GestureDetector(
+      onTap: () async {
+        if (await canLaunchUrl(googleMapsUri)) {
+          await launchUrl(googleMapsUri);
+        } else {
+          throw 'Could not launch $googleMapsUri';
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromRGBO(91, 71, 188, 0.3),
+              blurRadius: 20,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset(
+            'assets/map.png',
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     );
   }
@@ -168,8 +214,8 @@ class HomeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFD3E0D4), // Prva boja: #D3E0D4
-              Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+              Color(0xFFD3E0D4),
+              Color(0xFFF8FAF8),
             ],
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
