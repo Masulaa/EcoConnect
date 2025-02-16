@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import '../widgets/back_button_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -8,7 +10,6 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 40),
-          // Logo i naslov
           Center(
             child: Column(
               children: [
@@ -17,19 +18,169 @@ class HomeScreen extends StatelessWidget {
                 const Text(
                   'Dashboard',
                   style: TextStyle(
-                     fontFamily: 'Poppins',
+                    fontFamily: 'Poppins',
                     fontSize: 40,
-                           fontWeight: FontWeight.w900,
-            color: const Color(0xFF1B5E20),
-            decoration: TextDecoration.underline,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1B5E20),
+                    decoration: TextDecoration.underline,
                   ),
                 ),
+                const SizedBox(height: 40),
+                _buildChartBox(),
+                const SizedBox(height: 40),
+                _buildButtonGrid(),
               ],
             ),
           ),
-        ])
+          BackButtonWidget(),
+        ],
+      ),
     );
   }
 
-  
+  Widget _buildChartBox() {
+    return Container(
+      width: 297,
+      height: 256,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(91, 71, 188, 0.3),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildLegend(),
+          Expanded(child: _buildChart()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegend() {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 1,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Color.fromRGBO(27, 94, 32, 0.8),
+            ),
+          ),
+        ),
+        SizedBox(width: 10),
+        Text(
+          'Prikaz',
+          style: TextStyle(
+            fontFamily: 'Roboto',
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 1,
+            color: Color(0xFF949494),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChart() {
+    return BarChart(
+      BarChartData(
+        barGroups: [
+          BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 8, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
+          BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 6, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
+          BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 7, color: Color(0xCC1B5E20), borderRadius: BorderRadius.zero)]),
+        ],
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (double value, TitleMeta meta) {
+                switch (value.toInt()) {
+                  case 0:
+                    return Text('kW/H', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
+                  case 1:
+                    return Text('Сдавайся', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
+                  case 2:
+                    return Text('Хохол', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold));
+                }
+                return Text('');
+              },
+            ),
+          ),
+        ),
+        gridData: FlGridData(show: true),
+        borderData: FlBorderData(show: false),
+      ),
+    );
+  }
+
+  Widget _buildButtonGrid() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton('Potrosnja vode', Icons.home),
+              _buildButton('Potrosnja struje', Icons.power),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildButton('Savjeti', Icons.lightbulb),
+              _buildButton('Ciljevi', Icons.flag),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildButton(String text, IconData icon) {
+    return Container(
+      width: 143,
+      height: 115,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(91, 71, 188, 0.3),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Color(0xFF1B5E20), size: 40),
+          const SizedBox(height: 10),
+          Text(
+            text,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1B5E20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
