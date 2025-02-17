@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (value == 'profile') {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => EditProfileScreen(4)),
+                    MaterialPageRoute(builder: (context) => EditProfileScreen()),
                   );
                 } else if (value == 'logout') {
                   _logout();

@@ -5,10 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/main_back_button_widget.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  final int userId;
-
-  EditProfileScreen({required this.userId});
-
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
 }
@@ -22,8 +18,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String _phoneNumber = '';
   String _epcgNaplatniBroj = '';
   String _epcgBrojBrojila = '';
+  int? _userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();  // Funkcija koja dohvaća user_id prilikom inicijalizacije
+  }
+
+  // Dohvatanje user_id iz SharedPreferences
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    
+    if (userId != null) {
+      setState(() {
+        _userId = int.tryParse(userId);
+      });
+    }
+  }
 
   Future<void> _updateProfile() async {
+    if (_userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nema spremljenog user_id!')),
+      );
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
     
@@ -34,7 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    final String apiUrl = 'https://lukamasulovic.site/api/users/${widget.userId}';
+    final String apiUrl = 'https://lukamasulovic.site/api/users/$_userId';
 
     try {
       final response = await http.patch(
@@ -148,3 +170,4 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
+

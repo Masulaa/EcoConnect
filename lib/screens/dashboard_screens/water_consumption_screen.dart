@@ -128,10 +128,9 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
   }
 
   Widget _buildChart() {
-    // Parsiramo vrijednosti za grafikon:
     double totalDueValue = parseValue(totalDue);
     double previousDebtValue = parseValue(lastInvoiceAmount);
-    double kwhValue = parseValue(sewerageConsumption);
+    double waterUsedValue = parseValue(waterConsumption, remove: ' m³'); // Uzima tačnu vrijednost potrošene vode
 
     return Container(
       width: 297,
@@ -139,8 +138,8 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFD3E0D4), // Prva boja: #D3E0D4
-            Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+            Color(0xFFD3E0D4),
+            Color(0xFFF8FAF8),
           ],
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
@@ -157,7 +156,6 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
       child: BarChart(
         BarChartData(
           barGroups: [
-            // x = 0 : Ukupno dugovanje
             BarChartGroupData(
               x: 0,
               barRods: [
@@ -167,7 +165,6 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
                 )
               ],
             ),
-            // x = 1 : Prethodni dug
             BarChartGroupData(
               x: 1,
               barRods: [
@@ -177,18 +174,16 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
                 )
               ],
             ),
-            // x = 2 : kWh potrošnja
             BarChartGroupData(
               x: 2,
               barRods: [
                 BarChartRodData(
-                  toY: kwhValue,
+                  toY: waterUsedValue,
                   color: Color(0xCC1B5E20),
                 )
               ],
             ),
           ],
-          // Koristimo novu sintaksu za titlove (s obzirom na fl_chart 0.70+)
           titlesData: FlTitlesData(
             show: true,
             bottomTitles: AxisTitles(
@@ -259,7 +254,7 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
       ),
       child: Row(
         mainAxisAlignment:
-            MainAxisAlignment.spaceBetween, // Raspoređivanje u liniji
+            MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
