@@ -8,6 +8,7 @@ import 'dashboard_screens/goals_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'edit_profile_screen.dart';
 import 'intro_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -57,10 +58,13 @@ class _HomeScreenState extends State<HomeScreen> {
             top: 30,
             right: 20,
             child: PopupMenuButton<String>(
-              icon: Icon(Icons.person, color: Colors.green, size: 28),
+              icon: Icon(Icons.account_box, color: Color(0xFF1B5E20), size: 38),
               onSelected: (String value) {
                 if (value == 'profile') {
-                  print("Navigating to profile...");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditProfileScreen(4)),
+                  );
                 } else if (value == 'logout') {
                   _logout();
                 }

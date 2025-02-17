@@ -41,9 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 200) {
           final responseData = json.decode(response.body);
           final token = responseData['data']['token'];
+          final userId = responseData['data']['user']['id'].toString();  // Dohvat user_id
 
+          // Spremanje tokena i user_id u SharedPreferences
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', token);
+          await prefs.setString('user_id', userId);  // Spremanje user_id
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Prijava je uspješna! Dobrodošli, ${responseData['data']['user']['name']}')),
@@ -70,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(title: const Text('Prijava')),
       body: Stack(
         children: [
           const BackgroundImage(),
@@ -87,8 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       const IntroText(),
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.05),
+                      SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                       CustomTextField(
                         controller: _emailController,
                         label: 'E-mail adresa',
@@ -120,13 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 20),
                       CustomButton(
                         text: 'Prijavite se',
-                        //onPressed: () {
-                        //  Navigator.push(
-                        //    context,
-                        //    MaterialPageRoute(
-                        //        builder: (context) => HomeScreen()),
-                        //  );
-                        //},
                         onPressed: _login,
                       ),
                       TextButton(
@@ -135,11 +129,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             context,
                             MaterialPageRoute(builder: (context) => RegisterScreen()),
                           );
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //       builder: (context) => HomeScreen()),
-                          // );
                         },
                         child: Text(
                           'Zaboravili ste lozinku?',
@@ -157,8 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => RegisterScreen()),
+                            MaterialPageRoute(builder: (context) => RegisterScreen()),
                           );
                         },
                         child: const Text(
@@ -184,3 +172,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
