@@ -18,9 +18,22 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
   String lastInvoiceDate = '...';
   String lastInvoiceAmount = '';
 
-  double costPerKWh = 0.0971;
+  double costPerKWh = 0.971;
   double maxKWhPerDay = 24 * 1.0;
   List<FlSpot> consumptionData = [];
+
+  // Pomoćna funkcija za parsiranje stringa u double
+  double parseValue(String value, {String remove = ''}) {
+    if (value == '...') return 0.0;
+    String processed = value;
+    if (remove.isNotEmpty) {
+      processed = processed.replaceAll(remove, '');
+    }
+    // Ukloni eventualni simbol evra i zamijeni zarez točkom
+    processed = processed.replaceAll(' €', '').replaceAll(',', '.');
+    double? result = double.tryParse(processed);
+    return result ?? 0.0;
+  }
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
@@ -118,6 +131,11 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
   }
 
   Widget _buildChart() {
+    // Parsiramo vrijednosti za grafikon:
+    double totalDueValue = parseValue(totalDue);
+    double previousDebtValue = parseValue(previousDebt);
+    double kwhValue = parseValue(kwhConsumption, remove: ' kW/h');
+
     return Container(
       width: 297,
       height: 280,
@@ -142,17 +160,78 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
       child: BarChart(
         BarChartData(
           barGroups: [
+            // x = 0 : Ukupno dugovanje
             BarChartGroupData(
-                x: 0,
-                barRods: [BarChartRodData(toY: 508, color: Color(0xCC1B5E20))]),
+              x: 0,
+              barRods: [
+                BarChartRodData(
+                  toY: totalDueValue,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+            // x = 1 : Prethodni dug
             BarChartGroupData(
-                x: 1,
-                barRods: [BarChartRodData(toY: 591, color: Color(0xCC1B5E20))]),
+              x: 1,
+              barRods: [
+                BarChartRodData(
+                  toY: previousDebtValue,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+            // x = 2 : kWh potrošnja
             BarChartGroupData(
-                x: 2,
-                barRods: [BarChartRodData(toY: 72, color: Color(0xCC1B5E20))]),
+              x: 2,
+              barRods: [
+                BarChartRodData(
+                  toY: kwhValue,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
           ],
-          titlesData: FlTitlesData(show: true),
+          // Koristimo novu sintaksu za titlove (s obzirom na fl_chart 0.70+)
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  TextStyle style = const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 10,
+                    color: Color(0xFF1B5E20),
+                  );
+                  switch (value.toInt()) {
+                    case 0:
+                      return Text('Ukup. dug.', style: style);
+                    case 1:
+                      return Text('Preth. dug.', style: style);
+                    case 2:
+                      return Text('kW/h', style: style);
+                    default:
+                      return const Text('');
+                  }
+                },
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  return Text(
+                    value.toStringAsFixed(0),
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 10,
+                      color: Color(0xFF1B5E20),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
           borderData: FlBorderData(show: false),
         ),
       ),
@@ -187,7 +266,7 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Poppins',
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -196,7 +275,7 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
           ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Poppins',
               fontSize: 16,
               color: Color(0xFF1B5E20),

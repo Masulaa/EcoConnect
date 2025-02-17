@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../widgets/main_back_button_widget.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class WaterConsumptionScreen extends StatefulWidget {
   @override
@@ -9,11 +10,11 @@ class WaterConsumptionScreen extends StatefulWidget {
 }
 
 class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
-  String waterConsumption = 'Učitavanje...';
-  String sewerageConsumption = 'Učitavanje...';
-  String totalDue = 'Učitavanje...';
-  String lastInvoiceAmount = 'Učitavanje...';
-  String consumerName = 'Učitavanje...';
+  String waterConsumption = '...';
+  String sewerageConsumption = '...';
+  String totalDue = '...';
+  String lastInvoiceAmount = '...';
+  String consumerName = '...';
 
   Map<String, double> waterRates = {
     'First': 1.330,
@@ -22,12 +23,25 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
   };
 
   Map<String, double> sewerageRates = {
-    'First': 0.665, 
-    'Second A': 0.573, 
-    'Second B': 0.202, 
+    'First': 0.665,
+    'Second A': 0.573,
+    'Second B': 0.202,
   };
 
   String consumerCategory = 'Second B';
+
+  // Pomoćna funkcija za parsiranje stringa u double
+  double parseValue(String value, {String remove = ''}) {
+    if (value == '...') return 0.0;
+    String processed = value;
+    if (remove.isNotEmpty) {
+      processed = processed.replaceAll(remove, '');
+    }
+    // Ukloni eventualni simbol evra i zamijeni zarez točkom
+    processed = processed.replaceAll(' €', '').replaceAll(',', '.');
+    double? result = double.tryParse(processed);
+    return result ?? 0.0;
+  }
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
@@ -35,13 +49,16 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
-      
-      double totalCharge = double.parse(data['zaduzenje'].replaceAll('€', '').trim());
-      double lastInvoice = double.parse(data['poslednji_racun'].replaceAll('€', '').trim());
+
+      double totalCharge =
+          double.parse(data['zaduzenje'].replaceAll('€', '').trim());
+      double lastInvoice =
+          double.parse(data['poslednji_racun'].replaceAll('€', '').trim());
       String name = data['ime'];
 
       double waterUsed = totalCharge / waterRates[consumerCategory]!;
-      double sewerageUsed = waterUsed * (sewerageRates[consumerCategory]! / waterRates[consumerCategory]!);
+      double sewerageUsed = waterUsed *
+          (sewerageRates[consumerCategory]! / waterRates[consumerCategory]!);
 
       setState(() {
         waterConsumption = waterUsed.toStringAsFixed(2) + ' m³';
@@ -88,10 +105,14 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
                         decoration: TextDecoration.underline,
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    _buildChart(),
                     const SizedBox(height: 40),
                     //_buildDataCard('Ime korisnika:', consumerName),
-                    _buildDataCard('Količina potrošnje vode:', waterConsumption),
-                    _buildDataCard('Količina otpadnih voda:', sewerageConsumption),
+                    _buildDataCard(
+                        'Količina potrošnje vode:', waterConsumption),
+                    _buildDataCard(
+                        'Količina otpadnih voda:', sewerageConsumption),
                     _buildDataCard('Ukupno dugovanje:', totalDue),
                     _buildDataCard('Posljednji račun:', lastInvoiceAmount),
                   ],
@@ -105,36 +126,158 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
     );
   }
 
+  Widget _buildChart() {
+    // Parsiramo vrijednosti za grafikon:
+    double totalDueValue = parseValue(totalDue);
+    double previousDebtValue = parseValue(lastInvoiceAmount);
+    double kwhValue = parseValue(sewerageConsumption);
 
-
-
-  Widget _buildDataCard(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      child: Card(
-        color: Colors.white,
-        shadowColor: Colors.black.withOpacity(0.1),
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+    return Container(
+      width: 297,
+      height: 280,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFD3E0D4), // Prva boja: #D3E0D4
+            Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
         ),
-        child: ListTile(
-          title: Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(91, 71, 188, 0.3),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: BarChart(
+        BarChartData(
+          barGroups: [
+            // x = 0 : Ukupno dugovanje
+            BarChartGroupData(
+              x: 0,
+              barRods: [
+                BarChartRodData(
+                  toY: totalDueValue,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+            // x = 1 : Prethodni dug
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(
+                  toY: previousDebtValue,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+            // x = 2 : kWh potrošnja
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(
+                  toY: kwhValue,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+          ],
+          // Koristimo novu sintaksu za titlove (s obzirom na fl_chart 0.70+)
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  TextStyle style = const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 10,
+                    color: Color(0xFF1B5E20),
+                  );
+                  switch (value.toInt()) {
+                    case 0:
+                      return Text('Ukup. dug.', style: style);
+                    case 1:
+                      return Text('Preth. dug.', style: style);
+                    case 2:
+                      return Text('Potr. voda', style: style);
+                    default:
+                      return const Text('');
+                  }
+                },
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  return Text(
+                    value.toStringAsFixed(0),
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 10,
+                      color: Color(0xFF1B5E20),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDataCard(String label, String value) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFD3E0D4),
+            Color(0xFFF8FAF8),
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(91, 71, 188, 0.3),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment:
+            MainAxisAlignment.spaceBetween, // Raspoređivanje u liniji
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1B5E20),
             ),
           ),
-          subtitle: Text(
+          Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 16,
-              color: Colors.black87,
+              color: Color(0xFF1B5E20),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
