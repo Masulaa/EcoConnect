@@ -1,7 +1,10 @@
+import 'package:ecoconnect/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../widgets/custom_button.dart';
+import '../widgets/custom_text_field.dart';
 
 import '../widgets/main_back_button_widget.dart';
 
@@ -27,9 +30,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _epcgNaplatniBrojController = TextEditingController();
-  final TextEditingController _epcgBrojBrojilaController = TextEditingController();
-  final TextEditingController _vodovodPretplatniBrojController = TextEditingController();
+  final TextEditingController _epcgNaplatniBrojController =
+      TextEditingController();
+  final TextEditingController _epcgBrojBrojilaController =
+      TextEditingController();
+  final TextEditingController _vodovodPretplatniBrojController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -62,7 +68,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           phoneNumber = data['data']['user']['phone_number'];
           epcgNaplatniBroj = data['data']['user']['epcg_naplatni_broj'];
           epcgBrojBrojila = data['data']['user']['epcg_broj_brojila'];
-          vodovodPretplatniBroj = data['data']['user']['vodovod_pretplatni_broj'];
+          vodovodPretplatniBroj =
+              data['data']['user']['vodovod_pretplatni_broj'];
 
           _nameController.text = name ?? '';
           _emailController.text = email ?? '';
@@ -152,74 +159,55 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF1B5E20),
                         decoration: TextDecoration.underline,
+                        decorationColor: Color(0xFF1B5E20),
                       ),
                     ),
+                    const SizedBox(height: 10),
                     isLoading
-                    ? CircularProgressIndicator()
-                    : Column(
-                      children: [
-                        TextField(
-                          controller: _nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Ime i prezime',
-                            border: OutlineInputBorder(),
+                        ? CircularProgressIndicator()
+                        : Column(
+                            children: [
+                              CustomTextField(
+                                controller: _nameController,
+                                label: 'Ime i prezime',
+                              ),
+                              const SizedBox(height: 5),
+                              CustomTextField(
+                                controller: _emailController,
+                                label: 'Email',
+                              ),
+                              const SizedBox(height: 5),
+                              CustomTextField(
+                                controller: _addressController,
+                                label: 'Adresa',
+                              ),
+                              const SizedBox(height: 5),
+                              CustomTextField(
+                                controller: _phoneController,
+                                label: 'Broj telefona',
+                              ),
+                              const SizedBox(height: 5),
+                              CustomTextField(
+                                controller: _epcgNaplatniBrojController,
+                                label: 'EPCG Naplatni broj',
+                              ),
+                              const SizedBox(height: 5),
+                              CustomTextField(
+                                controller: _epcgBrojBrojilaController,
+                                label: 'EPCG Broj brojila',
+                              ),
+                              const SizedBox(height: 5),
+                              CustomTextField(
+                                controller: _vodovodPretplatniBrojController,
+                                label: 'Vodovod Pretplatni Broj',
+                              ),
+                              const SizedBox(height: 20),
+                              CustomButton(
+                                text: 'Ažuriraj profil',
+                                onPressed: _saveUserData,
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: 'Email',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _addressController,
-                          decoration: InputDecoration(
-                            labelText: 'Adresa',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _phoneController,
-                          decoration: InputDecoration(
-                            labelText: 'Broj telefona',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _epcgNaplatniBrojController,
-                          decoration: InputDecoration(
-                            labelText: 'EPCG Naplatni broj',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _epcgBrojBrojilaController,
-                          decoration: InputDecoration(
-                            labelText: 'EPCG Broj brojila',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                          const SizedBox(height: 10),
-                          TextField(
-                            controller: _vodovodPretplatniBrojController,
-                            decoration: InputDecoration(
-                              labelText: 'Vodovod Pretplatni Broj',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),                       
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _saveUserData,
-                          child: Text('Ažuriraj profil'),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
