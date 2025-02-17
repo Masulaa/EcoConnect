@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../widgets/main_back_button_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../edit_profile_screen.dart';
 
 class AdviceScreen extends StatefulWidget {
   @override
@@ -16,12 +18,59 @@ class _AdvicesScreenState extends State<AdviceScreen> {
   double totalDueWater = 0;
   double lastInvoiceAmountWater = 0;
 
+  bool hasData = false;
+  String? epcgNaplatniBroj;
+  String? epcgBrojBrojila;
+  String? vodovodPretplatniBroj;
+
   List<bool> revealed = List.generate(6, (index) => false);
   List<String> tips = ["Učitavanje saveta..."];
 
-  Future<void> fetchData() async {
-    final responseElectricity = await http.get(Uri.parse(
-        'https://lukamasulovic.site/epcg?pretplatniBroj=152577011&brojBrojila=18N4E5B2514906007'));
+  Future<void> fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    final authToken = prefs.getString('auth_token');
+
+    if (userId != null && authToken != null) {
+      final response = await http.get(
+        Uri.parse('https://lukamasulovic.site/api/users/$userId'),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        var user = data['data']['user'];
+        setState(() {
+          vodovodPretplatniBroj = user['vodovod_pretplatni_broj'];
+          epcgNaplatniBroj = user['epcg_naplatni_broj'];
+          epcgBrojBrojila = user['epcg_broj_brojila'];
+        });
+
+        if (epcgNaplatniBroj != null && epcgBrojBrojila != null && vodovodPretplatniBroj != null) {
+          setState(() {
+            hasData = true;
+          });
+          fetchData(epcgNaplatniBroj!, epcgBrojBrojila!, vodovodPretplatniBroj!);
+        } else {
+          setState(() {
+            hasData = false;
+          });
+        }
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      setState(() {
+        hasData = false;
+      });
+    }
+  }
+
+  Future<void> fetchData(String pretplatniBroj, String brojBrojila, String vodovodPretplatniBroj) async {
+
+    final responseElectricity = await http.get(Uri.parse('https://lukamasulovic.site/epcg?pretplatniBroj=$pretplatniBroj&brojBrojila=$brojBrojila'));
 
     if (responseElectricity.statusCode == 200) {
     var data = json.decode(responseElectricity.body);
@@ -37,13 +86,8 @@ class _AdvicesScreenState extends State<AdviceScreen> {
       });
     }
 
-    //print(kwhConsumption);
-    //print(totalDueElectricity);
-    //print(previousDebtElectricity);
-
-
     final responseWater = await http.get(Uri.parse(
-        'https://lukamasulovic.site/vodovod_niksic?pretplatniBroj=222210'));
+      'https://lukamasulovic.site/vodovod_niksic?pretplatniBroj=$vodovodPretplatniBroj'));
 
     if (responseWater.statusCode == 200) {
     var data = json.decode(responseWater.body);
@@ -60,8 +104,6 @@ class _AdvicesScreenState extends State<AdviceScreen> {
       });
     }
 
-    //print(waterConsumption);
-    //print(totalDueWater);
     generateAdvice();
   }
 
@@ -103,7 +145,7 @@ class _AdvicesScreenState extends State<AdviceScreen> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchUserDetails();
   }
 
   @override
@@ -132,7 +174,7 @@ class _AdvicesScreenState extends State<AdviceScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildGrid(),
+                    hasData ? _buildGrid() : _buildPopup(),
                   ],
                 ),
               ),
@@ -141,6 +183,40 @@ class _AdvicesScreenState extends State<AdviceScreen> {
           MainBackButtonWidget(size: 38, color: Colors.black),
         ],
       ),
+    );
+  }
+
+    Widget _buildPopup() {
+    return AlertDialog(
+      backgroundColor: Color(0xAA1B5E20),
+      title: Text(
+        'Podaci nisu dostupni',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      content: Text(
+        'Molimo vas da unesete vaš EPCG broj i broj brojila, kao i pretplatni broj vodovoda u podešavanjima da biste videli podatke.',
+        style: TextStyle(
+          color: Colors.white70,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditProfileScreen()),
+            );
+          },
+          child: Text(
+            'Uđi u podešavanja',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -188,23 +264,23 @@ class _AdvicesScreenState extends State<AdviceScreen> {
               ),
               child: Center(
                 child: revealed[index]
-                    ? Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          tips[index],
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : Icon(
-                        Icons.lightbulb_outline,
-                        size: 40,
-                        color: Color(0xFF1B5E20),
-                      ),
+                ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    tips[index],
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+                : Icon(
+                  Icons.lightbulb_outline,
+                  size: 40,
+                  color: Color(0xFF1B5E20),
+                ),
               ),
             ),
           );
