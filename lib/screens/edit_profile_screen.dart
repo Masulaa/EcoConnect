@@ -34,6 +34,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _userId = int.tryParse(userId);
       });
+      await _fetchUserData();
+    }
+  }
+
+  Future<void> _fetchUserData() async {
+    if (_userId == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nema pristupnog tokena!')),
+      );
+      return;
+    }
+
+    final String apiUrl = 'https://lukamasulovic.site/api/users/$_userId';
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body)['data']['user'];
+
+        setState(() {
+          _name = userData['name'] ?? '';
+          _email = userData['email'] ?? '';
+          _address = userData['address'] ?? '';
+          _phoneNumber = userData['phone_number'] ?? '';
+          _epcgNaplatniBroj = userData['epcg_naplatni_broj'] ?? '';
+          _epcgBrojBrojila = userData['epcg_broj_brojila'] ?? '';
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Greška pri dohvaćanju podataka!')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška u povezivanju sa serverom!')),
+      );
     }
   }
 
@@ -58,7 +106,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final String apiUrl = 'https://lukamasulovic.site/api/users/$_userId';
 
     try {
-      final response = await http.patch(
+      final response = await http.put(
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
@@ -125,30 +173,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     children: [
                       TextFormField(
+                        initialValue: _name,
                         decoration: InputDecoration(labelText: 'Ime'),
                         onChanged: (value) => _name = value,
                       ),
                       TextFormField(
+                        initialValue: _email,
                         decoration: InputDecoration(labelText: 'Email'),
                         onChanged: (value) => _email = value,
                       ),
                       TextFormField(
+                        initialValue: _password,
                         decoration: InputDecoration(labelText: 'Lozinka'),
                         onChanged: (value) => _password = value,
                       ),
                       TextFormField(
+                        initialValue: _address,
                         decoration: InputDecoration(labelText: 'Adresa'),
                         onChanged: (value) => _address = value,
                       ),
                       TextFormField(
+                        initialValue: _phoneNumber,
                         decoration: InputDecoration(labelText: 'Telefon'),
                         onChanged: (value) => _phoneNumber = value,
                       ),
                       TextFormField(
+                        initialValue: _epcgNaplatniBroj,
                         decoration: InputDecoration(labelText: 'Naplatni broj EPCG'),
                         onChanged: (value) => _epcgNaplatniBroj = value,
                       ),
                       TextFormField(
+                        initialValue: _epcgBrojBrojila,
                         decoration: InputDecoration(labelText: 'Broj brojila EPCG'),
                         onChanged: (value) => _epcgBrojBrojila = value,
                       ),
