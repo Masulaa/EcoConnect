@@ -23,13 +23,15 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 0;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Center(
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Stack(
+      children: [
+        SingleChildScrollView(
+          child: Center(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 40),
                 Image.asset('assets/logo.png', height: 60),
@@ -51,52 +53,55 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildPageIndicator(),
                 const SizedBox(height: 40),
                 _buildButtonGrid(context),
+                const SizedBox(height: 20),
               ],
             ),
           ),
-          Positioned(
-            top: 30,
-            right: 20,
-            child: PopupMenuButton<String>(
-              icon: Icon(Icons.account_box, color: Color(0xFF1B5E20), size: 38),
-              onSelected: (String value) {
-                if (value == 'profile') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditProfileScreen()),
-                  );
-                } else if (value == 'logout') {
-                  _logout();
-                }
-              },
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem<String>(
-                  value: 'profile',
-                  child: Row(
-                    children: [
-                      Icon(Icons.person, color: Colors.black),
-                      SizedBox(width: 8),
-                      Text('Profile'),
-                    ],
-                  ),
+        ),
+        Positioned(
+          top: 30,
+          right: 20,
+          child: PopupMenuButton<String>(
+            icon: Icon(Icons.account_box, color: Color(0xFF1B5E20), size: 38),
+            onSelected: (String value) {
+              if (value == 'profile') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditProfileScreen()),
+                );
+              } else if (value == 'logout') {
+                _logout();
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.person, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Profile'),
+                  ],
                 ),
-                PopupMenuItem<String>(
-                  value: 'logout',
-                  child: Row(
-                    children: [
-                      Icon(Icons.exit_to_app, color: Colors.black),
-                      SizedBox(width: 8),
-                      Text('Logout'),
-                    ],
-                  ),
+              ),
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.exit_to_app, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Logout'),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildSlidingContent() {
     return Container(

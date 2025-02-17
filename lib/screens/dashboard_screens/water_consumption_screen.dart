@@ -30,14 +30,12 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
 
   String consumerCategory = 'Second B';
 
-  // Pomoćna funkcija za parsiranje stringa u double
   double parseValue(String value, {String remove = ''}) {
     if (value == '...') return 0.0;
     String processed = value;
     if (remove.isNotEmpty) {
       processed = processed.replaceAll(remove, '');
     }
-    // Ukloni eventualni simbol evra i zamijeni zarez točkom
     processed = processed.replaceAll(' €', '').replaceAll(',', '.');
     double? result = double.tryParse(processed);
     return result ?? 0.0;
@@ -87,39 +85,35 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Column(
-            children: [
-              const SizedBox(height: 40),
-              Center(
-                child: Column(
-                  children: [
-                    Image.asset('assets/logo.png', height: 60),
-                    const SizedBox(height: 1),
-                    const Text(
-                      'Potrošnja vode',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 40,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF1B5E20),
-                        decoration: TextDecoration.underline,
-                        decorationColor: Color(0xFF1B5E20),
-                      ),
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 40),
+                  Image.asset('assets/logo.png', height: 60),
+                  const SizedBox(height: 1),
+                  const Text(
+                    'Potrošnja vode',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 40,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1B5E20),
+                      decoration: TextDecoration.underline,
+                      decorationColor: Color(0xFF1B5E20),
                     ),
-                    const SizedBox(height: 20),
-                    _buildChart(),
-                    const SizedBox(height: 40),
-                    //_buildDataCard('Ime korisnika:', consumerName),
-                    _buildDataCard(
-                        'Količina potrošnje vode:', waterConsumption),
-                    _buildDataCard(
-                        'Količina otpadnih voda:', sewerageConsumption),
-                    _buildDataCard('Ukupno dugovanje:', totalDue),
-                    _buildDataCard('Posljednji račun:', lastInvoiceAmount),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildChart(),
+                  const SizedBox(height: 40),
+                  _buildDataCard('Količina potrošnje vode:', waterConsumption),
+                  _buildDataCard('Količina otpadnih voda:', sewerageConsumption),
+                  _buildDataCard('Ukupno dugovanje:', totalDue),
+                  _buildDataCard('Posljednji račun:', lastInvoiceAmount),
+                ],
               ),
-            ],
+            ),
           ),
           MainBackButtonWidget(size: 38, color: Colors.black),
         ],
@@ -130,7 +124,7 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
   Widget _buildChart() {
     double totalDueValue = parseValue(totalDue);
     double previousDebtValue = parseValue(lastInvoiceAmount);
-    double waterUsedValue = parseValue(waterConsumption, remove: ' m³'); // Uzima tačnu vrijednost potrošene vode
+    double waterUsedValue = parseValue(waterConsumption, remove: ' m³');
 
     return Container(
       width: 297,

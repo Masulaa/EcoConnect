@@ -22,14 +22,12 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
   double maxKWhPerDay = 24 * 1.0;
   List<FlSpot> consumptionData = [];
 
-  // Pomoćna funkcija za parsiranje stringa u double
   double parseValue(String value, {String remove = ''}) {
     if (value == '...') return 0.0;
     String processed = value;
     if (remove.isNotEmpty) {
       processed = processed.replaceAll(remove, '');
     }
-    // Ukloni eventualni simbol evra i zamijeni zarez točkom
     processed = processed.replaceAll(' €', '').replaceAll(',', '.');
     double? result = double.tryParse(processed);
     return result ?? 0.0;
@@ -58,7 +56,6 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
         lastInvoiceDate = data['poslednji_racun']['datum'] ?? 'Nije dostupno';
         lastInvoiceAmount = data['poslednji_racun']['iznos'] ?? 'Nije dostupno';
 
-        // Generišemo fiktivne podatke za potrošnju po danima
         consumptionData = List.generate(
           daysInMonth,
           (index) => FlSpot(index.toDouble(),
@@ -77,62 +74,55 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              const SizedBox(height: 40),
-              Center(
-                child: Column(
-                  children: [
-                    Image.asset('assets/logo.png', height: 60),
-                    const SizedBox(height: 1),
-                    const Text(
-                      'Potrošnja struje',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 40,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF1B5E20),
-                        decoration: TextDecoration.underline,
-                        decorationColor: Color(0xFF1B5E20),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Dodajemo dijagram ispod naslova
-                    _buildChart(),
-
-                    const SizedBox(height: 40),
-
-                    _buildDataCard('Količina potrošnje:', kwhConsumption),
-                    _buildDataCard('Ukupno dugovanje za struju:', totalDue),
-                    _buildDataCard('Prethodni dug:', previousDebt),
-                    _buildDataCard('Posljednji račun:',
-                        '$lastInvoiceDate - $lastInvoiceAmount'),
-                  ],
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Stack(
+      children: [
+        SingleChildScrollView(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 40),
+                Image.asset('assets/logo.png', height: 60),
+                const SizedBox(height: 1),
+                const Text(
+                  'Potrošnja struje',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1B5E20),
+                    decoration: TextDecoration.underline,
+                    decorationColor: Color(0xFF1B5E20),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                _buildChart(),
+                const SizedBox(height: 40),
+                _buildDataCard('Količina potrošnje:', kwhConsumption),
+                _buildDataCard('Ukupno dugovanje za struju:', totalDue),
+                _buildDataCard('Prethodni dug:', previousDebt),
+                _buildDataCard('Posljednji račun:', '$lastInvoiceDate - $lastInvoiceAmount'),
+              ],
+            ),
           ),
-          MainBackButtonWidget(size: 38, color: Colors.black),
-        ],
-      ),
-    );
-  }
+        ),
+        MainBackButtonWidget(size: 38, color: Colors.black),
+      ],
+    ),
+  );
+}
 
   Widget _buildChartBox() {
     return Padding(
       padding: EdgeInsets.all(20),
-      child: _buildChart(), // Pozivanje funkcije za dijagram
+      child: _buildChart(),
     );
   }
 
   Widget _buildChart() {
-    // Parsiramo vrijednosti za grafikon:
     double totalDueValue = parseValue(totalDue);
     double previousDebtValue = parseValue(previousDebt);
     double kwhValue = parseValue(kwhConsumption, remove: ' kW/h');
@@ -143,8 +133,8 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFD3E0D4), // Prva boja: #D3E0D4
-            Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+            Color(0xFFD3E0D4),
+            Color(0xFFF8FAF8),
           ],
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
@@ -161,7 +151,6 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
       child: BarChart(
         BarChartData(
           barGroups: [
-            // x = 0 : Ukupno dugovanje
             BarChartGroupData(
               x: 0,
               barRods: [
@@ -171,7 +160,6 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
                 )
               ],
             ),
-            // x = 1 : Prethodni dug
             BarChartGroupData(
               x: 1,
               barRods: [
@@ -181,7 +169,6 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
                 )
               ],
             ),
-            // x = 2 : kWh potrošnja
             BarChartGroupData(
               x: 2,
               barRods: [
@@ -192,7 +179,6 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
               ],
             ),
           ],
-          // Koristimo novu sintaksu za titlove (s obzirom na fl_chart 0.70+)
           titlesData: FlTitlesData(
             show: true,
             bottomTitles: AxisTitles(
@@ -263,7 +249,7 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
       ),
       child: Row(
         mainAxisAlignment:
-            MainAxisAlignment.spaceBetween, // Raspoređivanje u liniji
+            MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,

@@ -23,10 +23,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserId();  // Funkcija koja dohvaća user_id prilikom inicijalizacije
+    _loadUserId();
   }
 
-  // Dohvatanje user_id iz SharedPreferences
   Future<void> _loadUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('user_id');
