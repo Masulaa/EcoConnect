@@ -5,6 +5,10 @@ import 'dashboard_screens/water_consumption_screen.dart';
 import 'dashboard_screens/power_consumption_screen.dart';
 import 'dashboard_screens/advice_screen.dart';
 import 'dashboard_screens/goals_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'intro_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -23,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Glavni sadržaj
           Center(
             child: Column(
               children: [
@@ -50,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Ikonica u gornjem desnom uglu
           Positioned(
             top: 30,
             right: 20,
@@ -58,11 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.person, color: Colors.green, size: 28),
               onSelected: (String value) {
                 if (value == 'profile') {
-                  // Logika za profil
                   print("Navigating to profile...");
                 } else if (value == 'logout') {
-                  // Logika za logout
-                  print("Logging out...");
+                  _logout();
                 }
               },
               itemBuilder: (BuildContext context) => [
@@ -101,8 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFD3E0D4), // Prva boja: #D3E0D4
-            Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+            Color(0xFFD3E0D4),
+            Color(0xFFF8FAF8),
           ],
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
@@ -273,8 +273,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
           gradient: LinearGradient(
             colors: [
-              Color(0xFFD3E0D4), // Prva boja: #D3E0D4
-              Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+              Color(0xFFD3E0D4),
+              Color(0xFFF8FAF8),
             ],
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
@@ -298,5 +298,50 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _logout() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => IntroScreen()),
+        );
+        return;
+      }
+
+      final apiUrl = 'https://lukamasulovic.site/api/logout';
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        await prefs.remove('auth_token');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Izlogovani ste.')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => IntroScreen()),
+        );
+      } else {
+        final responseData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Greška: ${responseData['message']}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Greška u povezivanju sa serverom.')),
+      );
+    }
   }
 }
