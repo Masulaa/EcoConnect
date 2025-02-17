@@ -98,6 +98,7 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF1B5E20),
                         decoration: TextDecoration.underline,
+                        decorationColor: Color(0xFF1B5E20),
                       ),
                     ),
                     const SizedBox(height: 20),

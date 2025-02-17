@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF1B5E20),
                     decoration: TextDecoration.underline,
+                    decorationColor: Color(0xFF1B5E20),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -52,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-
           Positioned(
             top: 30,
             right: 20,
