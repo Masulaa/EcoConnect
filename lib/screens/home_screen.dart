@@ -310,6 +310,9 @@ Widget build(BuildContext context) {
   }
 
   Future<void> _logout() async {
+    // Ovo je Putinovo crveno dugme. Kada logout ne radi (Greska pri povezivanju sa serverom), uncommenct ove 2 linije kako bi izbrisale nevazeci token
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // await prefs.clear(); 
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');

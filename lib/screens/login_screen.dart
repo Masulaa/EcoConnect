@@ -41,12 +41,11 @@ class _LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 200) {
           final responseData = json.decode(response.body);
           final token = responseData['data']['token'];
-          final userId = responseData['data']['user']['id'].toString();  // Dohvat user_id
+          final userId = responseData['data']['user']['id'].toString();
 
-          // Spremanje tokena i user_id u SharedPreferences
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', token);
-          await prefs.setString('user_id', userId);  // Spremanje user_id
+          await prefs.setString('user_id', userId);
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Prijava je uspješna! Dobrodošli, ${responseData['data']['user']['name']}')),
