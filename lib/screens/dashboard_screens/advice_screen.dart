@@ -9,7 +9,6 @@ class AdviceScreen extends StatefulWidget {
 }
 
 class _AdvicesScreenState extends State<AdviceScreen> {
-  // Podaci iz API-ja
   double kwhConsumption = 0;
   double totalDueElectricity = 0;
   double previousDebtElectricity = 0;
@@ -25,31 +24,44 @@ class _AdvicesScreenState extends State<AdviceScreen> {
         'https://lukamasulovic.site/epcg?pretplatniBroj=152577011&brojBrojila=18N4E5B2514906007'));
 
     if (responseElectricity.statusCode == 200) {
-      var data = json.decode(responseElectricity.body);
+    var data = json.decode(responseElectricity.body);
+  
+    double parseAmount(String value) {
+      return double.tryParse(value.replaceAll('€', '').trim()) ?? 0.0;
+    }
+  
       setState(() {
-        kwhConsumption =
-            double.tryParse(data['poslednji_racun']['iznos'].toString()) ?? 0;
-        totalDueElectricity =
-            double.tryParse(data['ukupno_za_uplatu'].toString()) ?? 0;
-        previousDebtElectricity =
-            double.tryParse(data['prethodni_dug'].toString()) ?? 0;
+        kwhConsumption = parseAmount(data['poslednji_racun']['iznos'].toString());
+        totalDueElectricity = parseAmount(data['ukupno_za_uplatu'].toString());
+        previousDebtElectricity = parseAmount(data['prethodni_dug'].toString());
       });
     }
+
+    //print(kwhConsumption);
+    //print(totalDueElectricity);
+    //print(previousDebtElectricity);
+
 
     final responseWater = await http.get(Uri.parse(
         'https://lukamasulovic.site/vodovod_niksic?pretplatniBroj=222210'));
 
     if (responseWater.statusCode == 200) {
-      var data = json.decode(responseWater.body);
-      setState(() {
-        waterConsumption = double.tryParse(data['zaduzenje'].toString()) ?? 0;
-        totalDueWater =
-            double.tryParse(data['poslednji_racun'].toString()) ?? 0;
-        lastInvoiceAmountWater =
-            double.tryParse(data['poslednji_racun'].toString()) ?? 0;
+    var data = json.decode(responseWater.body);
+    print(data);
+
+    double parseAmount(String value) {
+      return double.tryParse(value.replaceAll('€', '').trim()) ?? 0.0;
+    }
+
+    setState(() {
+      waterConsumption = parseAmount(data['zaduzenje'].toString());
+      totalDueWater = parseAmount(data['poslednji_racun'].toString());
+      lastInvoiceAmountWater = parseAmount(data['poslednji_racun'].toString());
       });
     }
 
+    //print(waterConsumption);
+    //print(totalDueWater);
     generateAdvice();
   }
 
