@@ -120,26 +120,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 20),
                       CustomButton(
                         text: 'Prijavite se',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
-                          );
-                        },
-                        // onPressed: _login,
+                        //onPressed: () {
+                        //  Navigator.push(
+                        //    context,
+                        //    MaterialPageRoute(
+                        //        builder: (context) => HomeScreen()),
+                        //  );
+                        //},
+                        onPressed: _login,
                       ),
                       TextButton(
                         onPressed: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(builder: (context) => RegisterScreen()),
-                          // );
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
+                            MaterialPageRoute(builder: (context) => RegisterScreen()),
                           );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => HomeScreen()),
+                          // );
                         },
                         child: Text(
                           'Zaboravili ste lozinku?',
