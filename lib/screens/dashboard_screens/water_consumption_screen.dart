@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/main_back_button_widget.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../edit_profile_screen.dart';
 
 class WaterConsumptionScreen extends StatefulWidget {
   @override
@@ -15,6 +17,9 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
   String totalDue = '...';
   String lastInvoiceAmount = '...';
   String consumerName = '...';
+
+  bool hasVodovodData = false;
+  String? vodovodPretplatniBroj;
 
   Map<String, double> waterRates = {
     'First': 1.330,
@@ -41,9 +46,49 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
     return result ?? 0.0;
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    final authToken = prefs.getString('auth_token');
+
+    if (userId != null && authToken != null) {
+      final response = await http.get(
+        Uri.parse('https://lukamasulovic.site/api/users/$userId'),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        var user = data['data']['user'];
+        setState(() {
+          vodovodPretplatniBroj = user['vodovod_pretplatni_broj'];
+        });
+
+        if (vodovodPretplatniBroj != null) {
+          setState(() {
+            hasVodovodData = true;
+          });
+          fetchData(vodovodPretplatniBroj!);
+        } else {
+          setState(() {
+            hasVodovodData = false;
+          });
+        }
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      setState(() {
+        hasVodovodData = false;
+      });
+    }
+  }
+
+  Future<void> fetchData(String vodovodPretplatniBroj) async {
     final response = await http.get(Uri.parse(
-        'https://lukamasulovic.site/vodovod_niksic?pretplatniBroj=222210'));
+        'https://lukamasulovic.site/vodovod_niksic?pretplatniBroj=$vodovodPretplatniBroj'));
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
@@ -76,7 +121,7 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchUserDetails();
   }
 
   @override
@@ -105,7 +150,7 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  _buildChart(),
+                  hasVodovodData ? _buildChart() : _buildPopup(),
                   const SizedBox(height: 40),
                   _buildDataCard('Količina potrošnje vode:', waterConsumption),
                   _buildDataCard('Količina otpadnih voda:', sewerageConsumption),
@@ -118,6 +163,40 @@ class _WaterConsumptionScreenState extends State<WaterConsumptionScreen> {
           MainBackButtonWidget(size: 38, color: Colors.black),
         ],
       ),
+    );
+  }
+
+  Widget _buildPopup() {
+    return AlertDialog(
+      backgroundColor: Color(0xAA1B5E20),
+      title: Text(
+        'Podaci nisu dostupni',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      content: Text(
+        'Molimo vas da unesete vaš pretplatni broj od vodovoda u podešavanjima da biste videli podatke.',
+        style: TextStyle(
+          color: Colors.white70,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditProfileScreen()),
+            );
+          },
+          child: Text(
+            'Uđi u podešavanja',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

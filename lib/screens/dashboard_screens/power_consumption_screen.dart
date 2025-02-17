@@ -3,7 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/main_back_button_widget.dart';
+import '../edit_profile_screen.dart';
 
 class PowerConsumptionScreen extends StatefulWidget {
   @override
@@ -22,6 +24,10 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
   double maxKWhPerDay = 24 * 1.0;
   List<FlSpot> consumptionData = [];
 
+  bool hasEpcgData = false;
+  String? epcgNaplatniBroj;
+  String? epcgBrojBrojila;
+
   double parseValue(String value, {String remove = ''}) {
     if (value == '...') return 0.0;
     String processed = value;
@@ -33,9 +39,50 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
     return result ?? 0.0;
   }
 
-  Future<void> fetchData() async {
-    final response = await http.get(Uri.parse(
-        'https://lukamasulovic.site/epcg?pretplatniBroj=152577011&brojBrojila=18N4E5B2514906007'));
+  Future<void> fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    final authToken = prefs.getString('auth_token');
+
+    if (userId != null && authToken != null) {
+      final response = await http.get(
+        Uri.parse('https://lukamasulovic.site/api/users/$userId'),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        var user = data['data']['user'];
+        setState(() {
+          epcgNaplatniBroj = user['epcg_naplatni_broj'];
+          epcgBrojBrojila = user['epcg_broj_brojila'];
+        });
+
+        if (epcgNaplatniBroj != null && epcgBrojBrojila != null) {
+          setState(() {
+            hasEpcgData = true;
+          });
+          fetchData(epcgNaplatniBroj!, epcgBrojBrojila!);
+        } else {
+          setState(() {
+            hasEpcgData = false;
+          });
+        }
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      setState(() {
+        hasEpcgData = false;
+      });
+    }
+  }
+
+  Future<void> fetchData(String pretplatniBroj, String brojBrojila) async {
+    final url = 'https://lukamasulovic.site/epcg?pretplatniBroj=$pretplatniBroj&brojBrojila=$brojBrojila';
+    final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
@@ -63,62 +110,89 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
         );
       });
     } else {
-      throw Exception('Failed to load data');
+      throw Exception('Failed to load EPCG data');
     }
   }
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+    fetchUserDetails();
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.white,
-    body: Stack(
-      children: [
-        SingleChildScrollView(
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 40),
-                Image.asset('assets/logo.png', height: 60),
-                const SizedBox(height: 1),
-                const Text(
-                  'Potrošnja struje',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF1B5E20),
-                    decoration: TextDecoration.underline,
-                    decorationColor: Color(0xFF1B5E20),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 40),
+                  Image.asset('assets/logo.png', height: 60),
+                  const SizedBox(height: 1),
+                  const Text(
+                    'Potrošnja struje',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 40,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1B5E20),
+                      decoration: TextDecoration.underline,
+                      decorationColor: Color(0xFF1B5E20),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                _buildChart(),
-                const SizedBox(height: 40),
-                _buildDataCard('Količina potrošnje:', kwhConsumption),
-                _buildDataCard('Ukupno dugovanje za struju:', totalDue),
-                _buildDataCard('Prethodni dug:', previousDebt),
-                _buildDataCard('Posljednji račun:', '$lastInvoiceDate - $lastInvoiceAmount'),
-              ],
+                  const SizedBox(height: 20),
+                  hasEpcgData ? _buildChart() : _buildPopup(),
+                  const SizedBox(height: 40),
+                  _buildDataCard('Količina potrošnje:', kwhConsumption),
+                  _buildDataCard('Ukupno dugovanje za struju:', totalDue),
+                  _buildDataCard('Prethodni dug:', previousDebt),
+                  _buildDataCard('Posljednji račun:', '$lastInvoiceDate - $lastInvoiceAmount'),
+                ],
+              ),
+            ),
+          ),
+          MainBackButtonWidget(size: 38, color: Colors.black),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPopup() {
+    return AlertDialog(
+      backgroundColor: Color(0xAA1B5E20),
+      title: Text(
+        'Podaci nisu dostupni',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      content: Text(
+        'Molimo vas da unesete vaš EPCG broj i broj brojila u podešavanjima da biste videli podatke.',
+        style: TextStyle(
+          color: Colors.white70,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditProfileScreen()),
+            );
+          },
+          child: Text(
+            'Uđi u podešavanja',
+            style: TextStyle(
+              color: Colors.white,
             ),
           ),
         ),
-        MainBackButtonWidget(size: 38, color: Colors.black),
       ],
-    ),
-  );
-}
-
-  Widget _buildChartBox() {
-    return Padding(
-      padding: EdgeInsets.all(20),
-      child: _buildChart(),
     );
   }
 
@@ -248,8 +322,7 @@ Widget build(BuildContext context) {
         ],
       ),
       child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
@@ -273,3 +346,4 @@ Widget build(BuildContext context) {
     );
   }
 }
+
