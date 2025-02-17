@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../widgets/main_back_button_widget.dart';
 
 class PowerConsumptionScreen extends StatefulWidget {
@@ -10,15 +11,16 @@ class PowerConsumptionScreen extends StatefulWidget {
 }
 
 class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
-  String kwhConsumption = 'Učitavanje...';
-  String usageTime = 'Učitavanje...';
-  String totalDue = 'Učitavanje...';
-  String previousDebt = 'Učitavanje...';
-  String lastInvoiceDate = 'Učitavanje...';
+  String kwhConsumption = '...';
+  String usageTime = '...';
+  String totalDue = '...';
+  String previousDebt = '...';
+  String lastInvoiceDate = '...';
   String lastInvoiceAmount = '';
 
   double costPerKWh = 0.0971;
   double maxKWhPerDay = 24 * 1.0;
+  List<FlSpot> consumptionData = [];
 
   Future<void> fetchData() async {
     final response = await http.get(Uri.parse(
@@ -33,26 +35,23 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
       double totalKWhUsed = invoiceAmount / costPerKWh;
 
       int daysInMonth = 30;
-      int hoursInMonth = daysInMonth * 24;
       double averageUsagePerDay = totalKWhUsed / daysInMonth;
-
-      int daysUsed = (totalKWhUsed / averageUsagePerDay).floor();
-      double remainingKWh = totalKWhUsed - (daysUsed * averageUsagePerDay);
-      int hoursUsed = (remainingKWh / 1.0).floor();
-
-      double maxKWhForMonth = maxKWhPerDay * daysInMonth;
 
       setState(() {
         kwhConsumption = totalKWhUsed.toStringAsFixed(2) + ' kW/h';
-        usageTime = '$daysUsed dana, $hoursUsed sati';
+        usageTime = '${(totalKWhUsed / averageUsagePerDay).floor()} dana';
         totalDue = data['ukupno_za_uplatu'] ?? 'Nije dostupno';
         previousDebt = data['prethodni_dug'] ?? 'Nije dostupno';
         lastInvoiceDate = data['poslednji_racun']['datum'] ?? 'Nije dostupno';
         lastInvoiceAmount = data['poslednji_racun']['iznos'] ?? 'Nije dostupno';
-      });
 
-      print('Max KWh for month: $maxKWhForMonth');
-      print('Days used: $daysUsed, Hours used: $hoursUsed');
+        // Generišemo fiktivne podatke za potrošnju po danima
+        consumptionData = List.generate(
+          daysInMonth,
+          (index) => FlSpot(index.toDouble(),
+              (averageUsagePerDay * (0.8 + (index % 5) * 0.05)).toDouble()),
+        );
+      });
     } else {
       throw Exception('Failed to load data');
     }
@@ -88,12 +87,18 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
                         decoration: TextDecoration.underline,
                       ),
                     ),
+                    const SizedBox(height: 20),
+
+                    // Dodajemo dijagram ispod naslova
+                    _buildChart(),
+
                     const SizedBox(height: 40),
+
                     _buildDataCard('Količina potrošnje:', kwhConsumption),
-                    //_buildDataCard('Ukupno vrijeme potrošnje:', usageTime),
                     _buildDataCard('Ukupno dugovanje za struju:', totalDue),
                     _buildDataCard('Prethodni dug:', previousDebt),
-                    _buildDataCard('Posljednji račun:', '$lastInvoiceDate - $lastInvoiceAmount'),
+                    _buildDataCard('Posljednji račun:',
+                        '$lastInvoiceDate - $lastInvoiceAmount'),
                   ],
                 ),
               ),
@@ -105,33 +110,99 @@ class _PowerConsumptionScreenState extends State<PowerConsumptionScreen> {
     );
   }
 
-  Widget _buildDataCard(String title, String value) {
+  Widget _buildChartBox() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      child: Card(
-        color: Colors.white,
-        shadowColor: Colors.black.withOpacity(0.1),
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+      padding: EdgeInsets.all(20),
+      child: _buildChart(), // Pozivanje funkcije za dijagram
+    );
+  }
+
+  Widget _buildChart() {
+    return Container(
+      width: 297,
+      height: 280,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFD3E0D4), // Prva boja: #D3E0D4
+            Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
         ),
-        child: ListTile(
-          title: Text(
-            title,
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(91, 71, 188, 0.3),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: BarChart(
+        BarChartData(
+          barGroups: [
+            BarChartGroupData(
+                x: 0,
+                barRods: [BarChartRodData(toY: 508, color: Color(0xCC1B5E20))]),
+            BarChartGroupData(
+                x: 1,
+                barRods: [BarChartRodData(toY: 591, color: Color(0xCC1B5E20))]),
+            BarChartGroupData(
+                x: 2,
+                barRods: [BarChartRodData(toY: 72, color: Color(0xCC1B5E20))]),
+          ],
+          titlesData: FlTitlesData(show: true),
+          borderData: FlBorderData(show: false),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDataCard(String label, String value) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFD3E0D4),
+            Color(0xFFF8FAF8),
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromRGBO(91, 71, 188, 0.3),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment:
+            MainAxisAlignment.spaceBetween, // Raspoređivanje u liniji
+        children: [
+          Text(
+            label,
             style: TextStyle(
-              fontSize: 18,
+              fontFamily: 'Poppins',
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1B5E20),
             ),
           ),
-          subtitle: Text(
+          Text(
             value,
             style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 16,
-              color: Colors.black87,
+              color: Color(0xFF1B5E20),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
