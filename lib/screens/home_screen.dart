@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../widgets/main_back_button_widget.dart';
 import 'dashboard_screens/water_consumption_screen.dart';
 import 'dashboard_screens/power_consumption_screen.dart';
 import 'dashboard_screens/advice_screen.dart';
 import 'dashboard_screens/goals_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final Uri googleMapsUri = Uri.parse(
       "https://www.google.com/maps/search/eko+reciklazni+centri+crna+gora/");
+
+  int _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -17,34 +23,72 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Column(
-            children: [
-              const SizedBox(height: 40),
-              Center(
-                child: Column(
-                  children: [
-                    Image.asset('assets/logo.png', height: 60),
-                    const SizedBox(height: 1),
-                    const Text(
-                      'Dashboard',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 40,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF1B5E20),
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    _buildSlidingContent(),
-                    const SizedBox(height: 40),
-                    _buildButtonGrid(context),
-                  ],
+          // Glavni sadržaj
+          Center(
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
+                Image.asset('assets/logo.png', height: 60),
+                const SizedBox(height: 10),
+                const Text(
+                  'Dashboard',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1B5E20),
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 40),
+                _buildSlidingContent(),
+                const SizedBox(height: 10),
+                _buildPageIndicator(),
+                const SizedBox(height: 40),
+                _buildButtonGrid(context),
+              ],
+            ),
           ),
-          //MainBackButtonWidget(size: 38, color: Colors.black),
+
+          // Ikonica u gornjem desnom uglu
+          Positioned(
+            top: 30,
+            right: 20,
+            child: PopupMenuButton<String>(
+              icon: Icon(Icons.person, color: Colors.green, size: 28),
+              onSelected: (String value) {
+                if (value == 'profile') {
+                  // Logika za profil
+                  print("Navigating to profile...");
+                } else if (value == 'logout') {
+                  // Logika za logout
+                  print("Logging out...");
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem<String>(
+                  value: 'profile',
+                  child: Row(
+                    children: [
+                      Icon(Icons.person, color: Colors.black),
+                      SizedBox(width: 8),
+                      Text('Profile'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      Icon(Icons.exit_to_app, color: Colors.black),
+                      SizedBox(width: 8),
+                      Text('Logout'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -53,21 +97,16 @@ class HomeScreen extends StatelessWidget {
   Widget _buildSlidingContent() {
     return Container(
       width: 297,
-      height: 256,
-      child: PageView(
-        children: [
-          _buildChartBox(),
-          _buildGoogleMapsDummy(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChartBox() {
-    return Container(
-      padding: EdgeInsets.all(20),
+      height: 280,
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFD3E0D4), // Prva boja: #D3E0D4
+            Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
         boxShadow: [
           BoxShadow(
             color: Color.fromRGBO(91, 71, 188, 0.3),
@@ -78,11 +117,29 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: _buildChart()),
+          Expanded(
+            child: PageView(
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              children: [
+                _buildChartBox(),
+                _buildGoogleMapsDummy(),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildChartBox() {
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: _buildChart(),
     );
   }
 
@@ -90,52 +147,17 @@ class HomeScreen extends StatelessWidget {
     return BarChart(
       BarChartData(
         barGroups: [
-          BarChartGroupData(x: 0, barRods: [
-            BarChartRodData(
-                toY: 508,
-                color: Color(0xCC1B5E20),
-                borderRadius: BorderRadius.zero)
-          ]),
-          BarChartGroupData(x: 1, barRods: [
-            BarChartRodData(
-                toY: 591,
-                color: Color(0xCC1B5E20),
-                borderRadius: BorderRadius.zero)
-          ]),
-          BarChartGroupData(x: 2, barRods: [
-            BarChartRodData(
-                toY: 72,
-                color: Color(0xCC1B5E20),
-                borderRadius: BorderRadius.zero)
-          ]),
+          BarChartGroupData(
+              x: 0,
+              barRods: [BarChartRodData(toY: 508, color: Color(0xCC1B5E20))]),
+          BarChartGroupData(
+              x: 1,
+              barRods: [BarChartRodData(toY: 591, color: Color(0xCC1B5E20))]),
+          BarChartGroupData(
+              x: 2,
+              barRods: [BarChartRodData(toY: 72, color: Color(0xCC1B5E20))]),
         ],
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (double value, TitleMeta meta) {
-                switch (value.toInt()) {
-                  case 0:
-                    return Text('kW/h',
-                        style: TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.bold));
-                  case 1:
-                    return Text('Litara',
-                        style: TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.bold));
-                  case 2:
-                    return Text('Reciklaža',
-                        style: TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.bold));
-                }
-                return Text('');
-              },
-            ),
-          ),
-        ),
-        gridData: FlGridData(show: true),
+        titlesData: FlTitlesData(show: true),
         borderData: FlBorderData(show: false),
       ),
     );
@@ -146,28 +168,57 @@ class HomeScreen extends StatelessWidget {
       onTap: () async {
         if (await canLaunchUrl(googleMapsUri)) {
           await launchUrl(googleMapsUri);
-        } else {
-          throw 'Could not launch $googleMapsUri';
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Color.fromRGBO(91, 71, 188, 0.3),
-              blurRadius: 20,
-              offset: Offset(0, 4),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.asset(
+              'assets/map.png',
+              fit: BoxFit.cover,
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image.asset(
-            'assets/map.png',
-            fit: BoxFit.cover,
           ),
-        ),
+          Positioned(
+            bottom: 10,
+            left: 10,
+            right: 10,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                "Pritisnite mapu za prikaz dostupnih reciklažnih centara",
+                style: TextStyle(color: Colors.white, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPageIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildIndicatorDot(0),
+        const SizedBox(width: 10),
+        _buildIndicatorDot(1),
+      ],
+    );
+  }
+
+  Widget _buildIndicatorDot(int index) {
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _currentPage == index ? Color(0xFF1B5E20) : Colors.grey[400],
       ),
     );
   }
@@ -199,27 +250,19 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(BuildContext context, String text, IconData icon,
-      Widget destinationScreen) {
+  Widget _buildButton(
+      BuildContext context, String text, IconData icon, Widget screen) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => destinationScreen),
+          MaterialPageRoute(builder: (context) => screen),
         );
       },
       child: Container(
         width: 143,
         height: 115,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFD3E0D4),
-              Color(0xFFF8FAF8),
-            ],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-          ),
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
@@ -228,6 +271,14 @@ class HomeScreen extends StatelessWidget {
               offset: Offset(0, 4),
             ),
           ],
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFD3E0D4), // Prva boja: #D3E0D4
+              Color(0xFFF8FAF8), // Druga boja: #F8FAF8
+            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
