@@ -1,7 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/main_back_button_widget.dart';
 
-class GoalsScreen extends StatelessWidget {
+class GoalsScreen extends StatefulWidget {
+  @override
+  _GoalsScreenState createState() => _GoalsScreenState();
+}
+
+class _GoalsScreenState extends State<GoalsScreen> {
+  List<TextEditingController> goalControllers = [];
+  List<int> goalIds = [];
+  bool isLoading = true;
+  String? authToken;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchGoals();
+  }
+
+  Future<void> fetchGoals() async {
+    final prefs = await SharedPreferences.getInstance();
+    authToken = prefs.getString('auth_token');
+
+    if (authToken == null) {
+      print('Auth token not found');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('https://lukamasulovic.site/api/goals/'),
+      headers: {'Authorization': 'Bearer $authToken'},
+    );
+
+    if (response.statusCode == 200) {
+      List goals = json.decode(response.body);
+      setState(() {
+        goalControllers = goals
+            .map((goal) => TextEditingController(text: goal['goal']))
+            .toList();
+        goalIds = goals
+            .map<int>((goal) => goal['id'] as int)
+            .toList(); // Ovde koristimo id direktno kao integer
+        isLoading = false;
+      });
+    } else {
+      print('Failed to fetch goals: ${response.body}');
+    }
+  }
+
+  Future<void> createGoal(String goalText) async {
+    if (goalText.isEmpty || authToken == null) return;
+
+    final response = await http.post(
+      Uri.parse('https://lukamasulovic.site/api/goals'),
+      headers: {
+        'Authorization': 'Bearer $authToken',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'goal': goalText}), // Promenjeno sa 'text' na 'goal'
+    );
+
+    if (response.statusCode == 201) {
+      var newGoal = json.decode(response.body);
+      setState(() {
+        goalControllers.add(TextEditingController(
+            text: newGoal['goal'])); // Promenjeno sa 'text' na 'goal'
+        goalIds.add(newGoal['id']);
+      });
+    } else {
+      print('Failed to create goal: ${response.body}');
+    }
+  }
+
+  Future<void> deleteGoal(int index) async {
+    if (authToken == null) return;
+
+    final response = await http.delete(
+      Uri.parse('https://lukamasulovic.site/api/goals/${goalIds[index]}'),
+      headers: {'Authorization': 'Bearer $authToken'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        goalControllers.removeAt(index);
+        goalIds.removeAt(index);
+      });
+    } else {
+      print('Failed to delete goal: ${response.body}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,6 +120,43 @@ class GoalsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              Expanded(
+                child: isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        padding: EdgeInsets.all(16),
+                        itemCount: goalControllers.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == goalControllers.length) {
+                            return ElevatedButton(
+                              onPressed: () {
+                                createGoal('');
+                              },
+                              child: Text('Dodaj novi cilj'),
+                            );
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: goalControllers[index],
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => deleteGoal(index),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),
