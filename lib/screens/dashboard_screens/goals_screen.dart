@@ -14,6 +14,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   List<int> goalIds = [];
   bool isLoading = true;
   String? authToken;
+  TextEditingController newGoalController = TextEditingController();
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             .toList();
         goalIds = goals
             .map<int>((goal) => goal['id'] as int)
-            .toList(); // Ovde koristimo id direktno kao integer
+            .toList();
         isLoading = false;
       });
     } else {
@@ -51,25 +52,27 @@ class _GoalsScreenState extends State<GoalsScreen> {
     }
   }
 
-  Future<void> createGoal(String goalText) async {
+  Future<void> createGoal() async {
+    String goalText = newGoalController.text;
+
     if (goalText.isEmpty || authToken == null) return;
 
     final response = await http.post(
       Uri.parse('https://lukamasulovic.site/api/goals'),
       headers: {
-        'Authorization': 'Bearer $authToken',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'goal': goalText}), // Promenjeno sa 'text' na 'goal'
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json',
+    },
+      body: json.encode({'goal': goalText}),
     );
 
     if (response.statusCode == 201) {
       var newGoal = json.decode(response.body);
       setState(() {
-        goalControllers.add(TextEditingController(
-            text: newGoal['goal'])); // Promenjeno sa 'text' na 'goal'
+        goalControllers.add(TextEditingController(text: newGoal['goal']));
         goalIds.add(newGoal['id']);
       });
+      newGoalController.clear();
     } else {
       print('Failed to create goal: ${response.body}');
     }
@@ -123,40 +126,52 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ),
               Expanded(
                 child: isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        padding: EdgeInsets.all(16),
-                        itemCount: goalControllers.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == goalControllers.length) {
-                            return ElevatedButton(
-                              onPressed: () {
-                                createGoal('');
-                              },
-                              child: Text('Dodaj novi cilj'),
-                            );
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: goalControllers[index],
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: goalControllers.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == goalControllers.length) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Column(
+                                children: [
+                                  TextField(
+                                    controller: newGoalController,
                                     decoration: InputDecoration(
+                                      labelText: 'Unesite naziv cilja',
                                       border: OutlineInputBorder(),
                                     ),
                                   ),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => deleteGoal(index),
-                                ),
-                              ],
+                                  ElevatedButton(
+                                    onPressed: createGoal,
+                                    child: Text('Dodaj novi cilj'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: goalControllers[index],
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
                             ),
-                          );
-                        },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => deleteGoal(index),
+                          ),
+                        ],
                       ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
