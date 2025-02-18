@@ -22,6 +22,107 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _currentPage = 0;
 
+  double kwhConsumption = 0;
+  double totalDueElectricity = 0;
+  double previousDebtElectricity = 0;
+  double waterConsumption = 0;
+  double totalDueWater = 0;
+  double lastInvoiceAmountWater = 0;
+
+  bool hasData = false;
+  String? epcgNaplatniBroj;
+  String? epcgBrojBrojila;
+  String? vodovodPretplatniBroj;
+
+  List<String> tips = ["Učitavanje saveta..."];
+
+  Future<void> fetchUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    final authToken = prefs.getString('auth_token');
+
+    if (userId != null && authToken != null) {
+      final response = await http.get(
+        Uri.parse('https://lukamasulovic.site/api/users/$userId'),
+        headers: {
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        var user = data['data']['user'];
+
+        setState(() {
+          vodovodPretplatniBroj = user['vodovod_pretplatni_broj'];
+          epcgNaplatniBroj = user['epcg_naplatni_broj'];
+          epcgBrojBrojila = user['epcg_broj_brojila'];
+        });
+
+        if (epcgNaplatniBroj != null && epcgBrojBrojila != null && vodovodPretplatniBroj != null) {
+          setState(() {
+            hasData = true;
+          });
+          fetchData(epcgNaplatniBroj!, epcgBrojBrojila!, vodovodPretplatniBroj!);
+        } else {
+          setState(() {
+            hasData = false;
+          });
+        }
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      setState(() {
+        hasData = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserDetails();
+  }
+
+  Future<void> fetchData(String pretplatniBroj, String brojBrojila, String vodovodPretplatniBroj) async {
+
+    final responseElectricity = await http.get(Uri.parse('https://lukamasulovic.site/epcg?pretplatniBroj=$pretplatniBroj&brojBrojila=$brojBrojila'));
+
+    if (responseElectricity.statusCode == 200) {
+    var data = json.decode(responseElectricity.body);
+
+    double parseAmount(String value) {
+      return double.tryParse(value.replaceAll('€', '').trim()) ?? 0.0;
+    }
+
+      setState(() {
+        kwhConsumption = parseAmount(data['poslednji_racun']['iznos'].toString());
+        totalDueElectricity = parseAmount(data['ukupno_za_uplatu'].toString());
+        previousDebtElectricity = parseAmount(data['prethodni_dug'].toString());
+      });
+    }
+
+    final responseWater = await http.get(Uri.parse(
+      'https://lukamasulovic.site/vodovod_niksic?pretplatniBroj=$vodovodPretplatniBroj'));
+
+    if (responseWater.statusCode == 200) {
+    var data = json.decode(responseWater.body);
+    print(data);
+
+    double parseAmount(String value) {
+      return double.tryParse(value.replaceAll('€', '').trim()) ?? 0.0;
+    }
+
+    setState(() {
+      waterConsumption = parseAmount(data['zaduzenje'].toString());
+      totalDueWater = parseAmount(data['poslednji_racun'].toString());
+      lastInvoiceAmountWater = parseAmount(data['poslednji_racun'].toString());
+      });
+    }
+  }
+
+
   @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -154,23 +255,89 @@ Widget build(BuildContext context) {
 
   Widget _buildChart() {
     return BarChart(
-      BarChartData(
-        barGroups: [
-          BarChartGroupData(
+        BarChartData(
+          barGroups: [
+            BarChartGroupData(
               x: 0,
-              barRods: [BarChartRodData(toY: 508, color: Color(0xCC1B5E20))]),
-          BarChartGroupData(
+              barRods: [
+                BarChartRodData(
+                  toY: waterConsumption,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+            BarChartGroupData(
               x: 1,
-              barRods: [BarChartRodData(toY: 591, color: Color(0xCC1B5E20))]),
-          BarChartGroupData(
+              barRods: [
+                BarChartRodData(
+                  toY: kwhConsumption,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+            BarChartGroupData(
               x: 2,
-              barRods: [BarChartRodData(toY: 72, color: Color(0xCC1B5E20))]),
-        ],
-        titlesData: FlTitlesData(show: true),
-        borderData: FlBorderData(show: false),
-      ),
-    );
-  }
+              barRods: [
+                BarChartRodData(
+                  toY: totalDueWater,
+                  color: Color(0xCC1B5E20),
+                )
+              ],
+            ),
+          ],
+          titlesData: FlTitlesData(
+  show: true,
+  bottomTitles: AxisTitles(
+    sideTitles: SideTitles(
+      showTitles: true,
+      interval: 1, // Održava ravnomeran raspored
+      reservedSize: 30, // Povećava prostor za tekst
+      getTitlesWidget: (double value, TitleMeta meta) {
+        TextStyle style = const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 10,
+          color: Color(0xFF1B5E20),
+        );
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0), // Dodaje razmak između labela
+          child: Transform.rotate(
+            angle: -0.3, // Blago rotira tekst ako se preklapa
+            child: Text(
+              switch (value.toInt()) {
+                0 => 'Ukup. dug. voda',
+                1 => 'Dug struje.',
+                2 => 'Dug voda',
+                _ => '',
+              },
+              style: style,
+            ),
+          ),
+        );
+      },
+    ),
+  ),
+
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  return Text(
+                    value.toStringAsFixed(0),
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 10,
+                      color: Color(0xFF1B5E20),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+        ),
+      );
+    }
 
   Widget _buildGoogleMapsDummy() {
     return GestureDetector(

@@ -122,24 +122,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: 'Prijavite se',
                         onPressed: _login,
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => RegisterScreen()),
-                          );
-                        },
-                        child: Text(
-                          'Zaboravili ste lozinku?',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            color: Color(0xFF1B5E20),
-                            height: 24 / 16,
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: () {

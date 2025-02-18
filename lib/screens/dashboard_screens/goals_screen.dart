@@ -42,9 +42,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
         goalControllers = goals
             .map((goal) => TextEditingController(text: goal['goal']))
             .toList();
-        goalIds = goals
-            .map<int>((goal) => goal['id'] as int)
-            .toList();
+        goalIds = goals.map<int>((goal) => goal['id'] as int).toList();
         isLoading = false;
       });
     } else {
@@ -60,9 +58,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
     final response = await http.post(
       Uri.parse('https://lukamasulovic.site/api/goals'),
       headers: {
-      'Authorization': 'Bearer $authToken',
-      'Content-Type': 'application/json',
-    },
+        'Authorization': 'Bearer $authToken',
+        'Content-Type': 'application/json',
+      },
       body: json.encode({'goal': goalText}),
     );
 
@@ -96,6 +94,57 @@ class _GoalsScreenState extends State<GoalsScreen> {
     }
   }
 
+  Widget _styledTextField({required TextEditingController controller, String label = ""}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xCC1B5E20),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: TextFormField(
+        controller: controller,
+        style: TextStyle(
+          color: Colors.white,
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w400,
+          fontSize: 14,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(16.0),
+        ),
+      ),
+    );
+  }
+
+  Widget _styledButton({required String text, required VoidCallback onPressed}) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xCC1B5E20),
+        minimumSize: Size(MediaQuery.of(context).size.width * 0.6, 50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,52 +175,39 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ),
               Expanded(
                 child: isLoading
-                ? Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: goalControllers.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == goalControllers.length) {
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        padding: EdgeInsets.all(16),
+                        itemCount: goalControllers.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == goalControllers.length) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Column(
                                 children: [
-                                  TextField(
-                                    controller: newGoalController,
-                                    decoration: InputDecoration(
-                                      labelText: 'Unesite naziv cilja',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: createGoal,
-                                    child: Text('Dodaj novi cilj'),
-                                  ),
+                                  _styledTextField(controller: newGoalController, label: 'Unesite naziv cilja'),
+                                  const SizedBox(height: 10),
+                                  _styledButton(text: 'Dodaj novi cilj', onPressed: createGoal),
                                 ],
                               ),
                             );
                           }
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: goalControllers[index],
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _styledTextField(controller: goalControllers[index]),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => deleteGoal(index),
+                                ),
+                              ],
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => deleteGoal(index),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
