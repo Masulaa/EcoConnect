@@ -9,9 +9,9 @@ class MainBackButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.bottomCenter,
+      alignment: Alignment.topLeft,  // Position at the top-left
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16.0),  // Adds padding to keep it from the edges
         child: IconButton(
           icon: Icon(Icons.arrow_back, size: size, color: color),
           onPressed: () {
@@ -22,4 +22,3 @@ class MainBackButtonWidget extends StatelessWidget {
     );
   }
 }
-
